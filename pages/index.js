@@ -157,7 +157,7 @@ export default class Main extends Component {
 		const satsPerPlane = 3;
 
 		// Center ~80°E (Indian Ocean)
-		const centerRAAN = 60 * Math.PI / 180;
+		const centerRAAN = 360 * Math.PI / 180;
 
 		// Spread planes only across 120° sector
 		const spread = 120 * Math.PI / 180;

@@ -20,12 +20,18 @@ $ yarn add three satellite.js
 ```
 
 ### Tasks
-[ ] Add ThreeJS Sphere
-[ ] Add Earth Texture
-[ ] Rotate Earth matching real world rotation
-[ ] Add 1 ThreeJS Sat
-[ ] ThreeJS Sat Flying around Earth
-[ ] 21 ThreeJS Satelites
-[ ] 72 ThreeJS Satelites flying around earth
+[X] Add ThreeJS Sphere
+[X] Add Earth Texture
+[X] Rotate Earth matching real world rotation
+[X] Add 1 ThreeJS Sat
+[X] ThreeJS Sat Flying around Earth
+[X] 21 ThreeJS Satelites
+
+[ ] Read the Code, Understand the Maths and Note on Paper
+[ ] Simulate Flying Path of ICEYE satelite constellation
+[ ] Simulate Flying Path of GaoFen satelite constellation
+[ ] Simulate US carrier moving around earth
+[ ] Build your satelite constellation to track US Carrier
+
 
 
