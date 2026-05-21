@@ -36,12 +36,45 @@ $ yarn add three satellite.js
 	this.angularVelocity = (2 * Math.PI) / this.orbitPeriod
 ```
 
+[X] Toggle to ICEYE satelite constellation
+[X] Toggle to GaoFen Constellation 
+[X] Simuluate GaoFen 4 GEO satelite
+https://www.youtube.com/watch?v=6kR7ifQT-B4
+
+[X] Simuluate YaoGAN SAR LEO constellation
+
 [ ] Read the Code, Understand the Maths and Note on Paper
+```
+// Animating Satellite Orbit
 
-[ ] Toggle to ICEYE satelite constellation
-[ ] Toggle to GaoFen Constellation 
+	this.satellites.forEach((sat) => {
+		const angle = baseAngle + sat.phase
+		
 
-[ ] Simulate Flying Path of GaoFen satelite constellation
+		let x = this.orbitRadius * Math.cos(angle)
+		let y = 0
+		let z = this.orbitRadius * Math.sin(angle)
+
+		// Inclination Angles
+		const cosI = Math.cos(this.inclination)
+		const sinI = Math.sin(this.inclination)
+
+		let yInclined = y * cosI - z * sinI;
+		let zInclined = y * sinI + z * cosI;
+
+		// RAAN rotation 
+		const cosR = Math.cos(sat.raan)
+		const sinR = Math.sin(sat.raan)
+
+		let xFinal = x * cosR - zInclined * sinR
+		let zFinal = x * sinR + zInclined * cosR
+
+		// Anti Access Area Denial 
+		// console.log("Satellite Coordinate ", xFinal, yInclined, zFinal)
+
+		sat.mesh.position.set(xFinal, yInclined, zFinal)
+	})
+```
 
 [ ] Simulate US carrier moving around earth
 [ ] Build your satelite constellation to track US Carrier

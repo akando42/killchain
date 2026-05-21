@@ -13,8 +13,27 @@ export default class Earth extends Component {
 		this.simRef = createRef();
 
 		this.state = {
-			timeT: 0
+			timeT: "",
+			simProgress: 0,
+			isDraggingTimeline: false,
+
+			altitude: 0.1,
+			orbitPeriod: 120,
+			inclination: 10 * Math.PI / 180,
+			satSize: 0.006,
+			satColor: "blue",
+			numberOfPlanes: 3,
+			satsPerPlane: 7
 		}
+		
+		this.startEnvironment = this.startEnvironment.bind(this)
+		this.addPlane = this.addPlane.bind(this)
+		this.selectSat = this.selectSat.bind(this)
+
+		this.updateTimeline = this.updateTimeline.bind(this)
+		this.startTimelineDrag = this.startTimelineDrag.bind(this);
+		this.endTimelineDrag = this.endTimelineDrag.bind(this);
+
 	}
 
 	// ADD Orbital Planes
@@ -25,7 +44,7 @@ export default class Earth extends Component {
 
 			const sat = new THREE.Mesh(
 				new THREE.SphereGeometry(0.01, 12, 12),
-				new THREE.MeshBasicMaterial({ color: 0xffff00 })
+				new THREE.MeshBasicMaterial({ color: this.state.satColor })
 			);
 
 			this.scene.add(sat);
@@ -42,6 +61,7 @@ export default class Earth extends Component {
 	// =========================
 	// ORBIT LINE PER PLANE
 	// =========================
+
 	addOrbitLine(raan) {
 		const segments = 128;
 		const points = [];
@@ -75,9 +95,9 @@ export default class Earth extends Component {
 		const geometry = new THREE.BufferGeometry().setFromPoints(points);
 
 		const material = new THREE.LineBasicMaterial({
-			color: 0xff4444,
+			color: "white",
 			transparent: true,
-			opacity: 0.6
+			opacity: 0.1
 		});
 
 		const line = new THREE.LineLoop(geometry, material);
@@ -87,6 +107,28 @@ export default class Earth extends Component {
 
 	async startEnvironment(){
 		const mount = this.simRef.current
+
+		// ORIGINAL SIM TIMESCALE
+		// this.simHoursPerSecond = 1/3600 * 60 * 24;
+
+		// ======================================
+		// WAR SIMULATION WINDOW
+		// ======================================
+
+		this.warStart =
+			new Date("2026-03-01T00:00:00Z");
+
+		this.warEnd =
+			new Date("2026-04-01T00:00:00Z");
+
+		this.totalWarDuration =
+			this.warEnd.getTime() -
+			this.warStart.getTime();
+
+		// playback speed
+		// 1 real second = 6 simulated hours
+		// this.simHoursPerSecond = 1/3600 * 60 * 24;
+		this.simHoursPerSecond = 6
 
 		// === SCENE ===
 
@@ -142,14 +184,15 @@ export default class Earth extends Component {
 		// ADDING SATELLITEs
 
 		this.earthRadius = 1 // 6371 km 
-		this.altitude = 0.1  // 600 km LEO altitude
+		this.altitude = this.state.altitude
+
 		this.iceyeAltitude = 550/6371
 		this.gaofenAltitude = 645/6371;
 
 		this.orbitRadius = this.earthRadius + this.altitude
 
 		// Angular Velocity ?
-		this.orbitPeriod = 120
+		this.orbitPeriod = this.state.orbitPeriod
 		this.angularVelocity = (2 * Math.PI) / this.orbitPeriod
 
 		// ICEYE Orbit Revisit Period ?
@@ -166,7 +209,7 @@ export default class Earth extends Component {
 		this.iceyeInclination = 97.5 * Math.PI / 180;
 		this.gaofenInclination = 98 * Math.PI / 180;
 
-		this.inclination = 10 * Math.PI / 180;
+		this.inclination = this.state.inclination
 		// this.inclination = this.iceyeInclination
 		// this.inclination = this.gaofenInclination
 
@@ -178,8 +221,8 @@ export default class Earth extends Component {
 		// PERSISTANT MONITORING AREA
 		// ========================================
 
-		const numberOfPlanes = 3;
-		const satsPerPlane = 24*6;
+		const numberOfPlanes = this.state.numberOfPlanes;
+		const satsPerPlane = this.state.satsPerPlane;
 
 		const targetingRAAN = -60 * Math.PI / 180
 		const spread = 30 * Math.PI / 180 
@@ -196,47 +239,138 @@ export default class Earth extends Component {
 
 		// ANIMATION LOOP
 		const animate = () => {
+
 			this.animationId = requestAnimationFrame(animate);
-			
-			const t =  (Date.now() - this.startTime) /1000
-			this.setState({ timeT: t})
 
-			const baseAngle = this.angularVelocity * t
+			// ======================================
+			// SIMULATION TIME
+			// ======================================
 
-			this.earth.rotation.y += (2 * Math.PI)/(24*3600)*10; // 10X Earth Rotation Speed 
+			let simTime;
 
-			// Animating Satellite Orbit
+			if (this.state.isDraggingTimeline) {
+
+				// user-controlled time
+				simTime = this.manualSimTime;
+
+			} else {
+
+				// auto simulation
+
+				const elapsedRealSeconds =
+					(Date.now() - this.startTime) / 1000;
+
+				const autoProgress =
+					(
+						elapsedRealSeconds *
+						this.simHoursPerSecond *
+						60 *
+						60 *
+						1000
+					) / this.totalWarDuration;
+
+				const progress =
+					Math.min(autoProgress, 1);
+
+				simTime =
+					this.warStart.getTime() +
+					(progress * this.totalWarDuration);
+
+				if (
+					Math.abs(
+						progress - this.state.simProgress
+					) > 0.001
+				) {
+
+					this.setState({
+						simProgress: progress,
+						timeT: new Date(simTime).toUTCString()
+					});
+				}
+			}
+
+			const simDate = new Date(simTime);
+
+			// ======================================
+			// SATELLITE TIME
+			// ======================================
+
+			const t =
+				(simTime - this.warStart.getTime()) / 1000;
+
+			const baseAngle =
+				this.angularVelocity * t;
+
+			// ======================================
+			// EARTH ROTATION
+			// ======================================
+
+			const earthRotationRate =
+				(2 * Math.PI) / (24 * 3600);
+
+			this.earth.rotation.y =
+				earthRotationRate * t;
+
+			// ======================================
+			// SATELLITE ANIMATION
+			// ======================================
 
 			this.satellites.forEach((sat) => {
-				const angle = baseAngle + sat.phase
-				
 
-				let x = this.orbitRadius * Math.cos(angle)
-				let y = 0
-				let z = this.orbitRadius * Math.sin(angle)
+				const angle =
+					baseAngle + sat.phase;
 
-				// Inclination Angles
-				const cosI = Math.cos(this.inclination)
-				const sinI = Math.sin(this.inclination)
+				let x =
+					this.orbitRadius *
+					Math.cos(angle);
 
-				let yInclined = y * cosI - z * sinI;
-				let zInclined = y * sinI + z * cosI;
+				let y = 0;
 
-				// RAAN rotation 
-				const cosR = Math.cos(sat.raan)
-				const sinR = Math.sin(sat.raan)
+				let z =
+					this.orbitRadius *
+					Math.sin(angle);
 
-				let xFinal = x * cosR - zInclined * sinR
-				let zFinal = x * sinR + zInclined * cosR
+				// inclination
+				const cosI =
+					Math.cos(this.inclination);
 
-				// Anti Access Area Denial 
-				// console.log("Satellite Coordinate ", xFinal, yInclined, zFinal)
+				const sinI =
+					Math.sin(this.inclination);
 
-				sat.mesh.position.set(xFinal, yInclined, zFinal)
-			})
+				let yInclined =
+					y * cosI - z * sinI;
+
+				let zInclined =
+					y * sinI + z * cosI;
+
+				// RAAN
+				const cosR =
+					Math.cos(sat.raan);
+
+				const sinR =
+					Math.sin(sat.raan);
+
+				let xFinal =
+					x * cosR -
+					zInclined * sinR;
+
+				let zFinal =
+					x * sinR +
+					zInclined * cosR;
+
+				sat.mesh.position.set(
+					xFinal,
+					yInclined,
+					zFinal
+				);
+			});
 
 			this.controls.update();
-			this.renderer.render(this.scene, this.camera);
+
+			this.renderer.render(
+				this.scene,
+				this.camera
+			);
 		}
 
 		animate();
@@ -249,6 +383,300 @@ export default class Earth extends Component {
 		};
 
 		window.addEventListener("resize", this.handleResize);
+	}
+
+	updateSatelliteMaterials(){
+		this.satellites.forEach((sat) => {
+			sat.mesh.material.color.set(this.state.satColor);
+
+			// remove old geometry
+			sat.mesh.geometry.dispose();
+
+			// create new geometry
+			sat.mesh.geometry = new THREE.SphereGeometry(this.state.satSize, 12, 12);
+		});
+	}
+
+	updateOrbitLines(){
+		// remove old lines
+		this.orbitLines.forEach((line) => {
+			this.scene.remove(line);
+			line.geometry.dispose();
+			line.material.dispose();
+		});
+
+		this.orbitLines = [];
+
+		// recreate
+		const uniqueRAANs = [...new Set(
+			this.satellites.map((sat) => sat.raan)
+		)];
+
+		uniqueRAANs.forEach((raan) => {
+
+			this.addOrbitLine(raan);
+
+		});
+	}
+
+	applyOrbitParameters(){
+
+		// altitude
+		this.orbitRadius =
+			this.earthRadius + this.state.altitude;
+
+		// inclination
+		this.inclination =
+			this.state.inclination * Math.PI / 180;
+
+		// orbital period
+		this.orbitPeriod =
+			this.state.orbitPeriod;
+
+		// angular velocity
+		this.angularVelocity =
+			(2 * Math.PI) / this.orbitPeriod;
+
+		// update satellite colors
+		this.updateSatelliteMaterials();
+
+		// rebuild orbit trails
+		this.updateOrbitLines();
+	}
+
+	async selectSat(event){
+
+		let constellation = event.target.dataset.satid
+		console.log("SELECT SAT", constellation)
+
+		if (constellation === "ICEYE_LEO"){
+			this.setState({
+				satColor: "blue",
+
+				// ~570 km
+				altitude: 0.089,
+
+				// near-polar
+				inclination: 97.7,
+
+				// ~96 minutes
+				orbitPeriod: 96,
+
+
+				satSize: 0.006,
+
+				// =====================
+				// CONSTELLATION
+				// =====================
+				numberOfPlanes: 3,
+				satsPerPlane: 7
+
+			}, () => {
+
+				this.applyOrbitParameters();
+				this.rebuildConstellation();
+
+			});
+
+		} else if (constellation === "GAOFEN_LEO"){
+			this.camera.position.set(1, 1, 3);
+			this.setState({
+			satColor: "red",
+
+				// ~650 km
+				altitude: 0.102,
+
+				// sun-synchronous
+				inclination: 98.0,
+
+				// ~97 minutes
+				orbitPeriod: 97,
+
+
+				satSize: 0.006,
+
+				numberOfPlanes: 6,
+				satsPerPlane: 4
+
+			}, () => {
+
+				this.applyOrbitParameters();
+
+				this.rebuildConstellation();
+			});
+
+		} else if (constellation === "GAOFEN4_GEO"){
+			this.camera.position.set(2, 3, 10);
+
+			this.setState({
+				satColor: "yellow",
+
+				// GEO altitude
+				altitude: 5.617,
+
+				// geostationary inclination
+				inclination: 0.1,
+
+				// 24h orbit
+				orbitPeriod: 8640,
+
+				satSize: 1,
+
+				// GEO usually few satellites
+				numberOfPlanes: 1,
+				satsPerPlane: 3
+
+				
+
+			}, () => {
+				this.applyOrbitParameters();
+				this.rebuildConstellation();
+			});
+		} else if (constellation === "YAOGAN_LEO"){
+
+			this.camera.position.set(0, 1.5, 3);
+
+			this.setState({
+
+				satColor: "lime",
+
+				// =====================
+				// YAOGAN LEO
+				// =====================
+
+				// ~500–1200 km typical
+				// using ~700 km average
+				altitude: 0.11,
+
+				// sun-synchronous / reconnaissance
+				inclination: 98.0,
+
+				// ~98 minute orbit
+				orbitPeriod: 98,
+
+				// visible size
+				satSize: 0.008,
+
+				// larger recon constellation
+				numberOfPlanes: 8,
+				satsPerPlane: 5
+
+			}, () => {
+
+				this.applyOrbitParameters();
+				this.rebuildConstellation();
+
+			});
+		}
+	}
+
+	rebuildConstellation(){
+		// =========================
+		// REMOVE OLD SATELLITES
+		// =========================
+
+		this.satellites.forEach((sat) => {
+
+			this.scene.remove(sat.mesh);
+
+			sat.mesh.geometry.dispose();
+			sat.mesh.material.dispose();
+
+		});
+
+		this.satellites = [];
+
+		// =========================
+		// REMOVE OLD ORBIT LINES
+		// =========================
+
+		this.orbitLines.forEach((line) => {
+
+			this.scene.remove(line);
+
+			line.geometry.dispose();
+			line.material.dispose();
+
+		});
+
+		this.orbitLines = [];
+
+		// =========================
+		// BUILD NEW CONSTELLATION
+		// =========================
+
+		const numberOfPlanes = this.state.numberOfPlanes;
+		const satsPerPlane = this.state.satsPerPlane;
+
+		// GEO centered over Indian Ocean
+		const targetingRAAN = -80 * Math.PI / 180;
+
+		// spread between orbital planes
+		const spread = 30 * Math.PI / 180;
+
+		for (let p = 0; p < numberOfPlanes; p++){
+
+			let raan;
+
+			// =========================
+			// SINGLE PLANE SAFE MODE
+			// =========================
+
+			if (numberOfPlanes === 1){
+
+				raan = targetingRAAN;
+
+			} else {
+
+				const offset =
+					(p / (numberOfPlanes - 1)) - 0.5;
+
+				raan =
+					targetingRAAN + offset * spread;
+			}
+
+			this.addPlane({
+				sats: satsPerPlane,
+				raan
+			});
+		}
+	}
+
+	updateTimeline(event){
+
+		const progress =
+			parseFloat(event.target.value);
+
+		const simTime =
+			this.warStart.getTime() +
+			(progress * this.totalWarDuration);
+
+		const simDate =
+			new Date(simTime);
+
+		// store manual time offset
+		this.manualSimTime = simTime;
+
+		this.setState({
+			simProgress: progress,
+			timeT: simDate.toUTCString()
+		});
+	}
+
+	startTimelineDrag(){
+		this.setState({
+			isDraggingTimeline: true
+		});
+	}
+
+	endTimelineDrag(){
+
+		this.setState({
+			isDraggingTimeline: false
+		});
+
+		// sync animation clock
+		this.startTime = Date.now();
 	}
 
 	componentDidMount(){
@@ -269,9 +697,70 @@ export default class Earth extends Component {
 
 				<div className={styles.overlayInfo}>
 					<div className={styles.title}>
-						<div> Earth Observation Constellation</div>
+						<div> Iranian War March 2026</div>
 						<div> {this.state.timeT} </div>
 					</div>
+				</div>
+
+				<div className={styles.timelineContainer}>
+					<input
+						type="range"
+						min="0"
+						max="1"
+						step="0.0001"
+						value={this.state.simProgress}
+
+						onMouseDown={this.startTimelineDrag}
+						onMouseUp={this.endTimelineDrag}
+
+						onTouchStart={this.startTimelineDrag}
+						onTouchEnd={this.endTimelineDrag}
+
+						onChange={this.updateTimeline}
+
+						className={styles.timelineSlider}
+					/>
+
+					<div className={styles.timelineLabels}>
+						<div>Mar 1 2026</div>
+						<div>Apr 1 2026</div>
+					</div>
+
+				</div>
+
+				<div className={styles.hoangControl}>
+					<div 
+						className={styles.satSelector}
+						onClick={this.selectSat}
+						data-satID="ICEYE_LEO"
+					> 
+						ICEYE LEO 
+					</div>
+
+					<div 
+						className={styles.satSelector}
+						onClick={this.selectSat}
+						data-satID="GAOFEN_LEO"
+					> 
+						GaoFen LEO 
+					</div>
+
+					<div 
+						className={styles.satSelector}
+						onClick={this.selectSat}
+						data-satID="GAOFEN4_GEO"
+					> 
+						GaoFen 4 GEO 
+					</div>
+
+					<div 
+						className={styles.satSelector}
+						onClick={this.selectSat}
+						data-satID="YAOGAN_LEO"
+					> 
+						YaoGan LEO 
+					</div>
+
 				</div>
 			</div>
 		)
