@@ -26,10 +26,7 @@ $ yarn add three satellite.js
 [X] Add 1 ThreeJS Sat
 [X] ThreeJS Sat Flying around Earth
 [X] 21 ThreeJS Satelites
-
-
 [X] this.earth.rotation.y += 0.0005 ; // Earth angular velocity 0.0000727 rad/sec
-
 [X] WHY Angular Velocity ?
 ```
 	this.orbitPeriod = 120
@@ -42,6 +39,12 @@ $ yarn add three satellite.js
 https://www.youtube.com/watch?v=6kR7ifQT-B4
 
 [X] Simuluate YaoGAN SAR LEO constellation
+
+[X] Reduce Simulation Time to 24 hours of March 1
+[X] Show Satelite observation area with real world specs
+
+[ ] Simulate US carrier stationary along the Coast of Oman at coordinate 21.888884087895217, 62.8574839512631
+[ ] Simulate Iranian IRGC Targeting US Carrier with Chinese Satellite Clues for March 1
 
 [ ] Read the Code, Understand the Maths and Note on Paper
 ```
@@ -76,7 +79,7 @@ https://www.youtube.com/watch?v=6kR7ifQT-B4
 	})
 ```
 
-[ ] Simulate US carrier moving around earth
+
 [ ] Build your satelite constellation to track US Carrier
 
 
