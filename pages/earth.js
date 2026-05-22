@@ -1,8 +1,11 @@
 "use client";
 
 import { Component, createRef } from "react";
+
 import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+
+import { OrbitControls }
+	from "three/examples/jsm/controls/OrbitControls.js";
 
 import styles from "../styles/Earth.module.css";
 
@@ -21,7 +24,9 @@ export default class Earth extends Component {
 			// =====================================
 
 			timeT: "",
+
 			simProgress: 0,
+
 			isDraggingTimeline: false,
 
 			// =====================================
@@ -29,7 +34,9 @@ export default class Earth extends Component {
 			// =====================================
 
 			altitude: 0.089,
+
 			orbitPeriod: 96,
+
 			inclination: 97.7,
 
 			// =====================================
@@ -37,13 +44,43 @@ export default class Earth extends Component {
 			// =====================================
 
 			satSize: 0.006,
+
 			satColor: "blue",
 
 			numberOfPlanes: 3,
-			satsPerPlane: 7
-		};
 
-		this.simRef = createRef();
+			satsPerPlane: 7,
+
+			// =====================================
+			// SATELLITE INFO PANEL
+			// =====================================
+
+			selectedSatellite: {
+
+				name: "ICEYE SAR",
+
+				image:
+					"/satellites/iceye.jpg",
+
+				operator:
+					"ICEYE Finland",
+
+				orbit:
+					"LEO Sun-Synchronous",
+
+				altitude:
+					"570 km",
+
+				resolution:
+					"25 cm - 1 m SAR",
+
+				revisit:
+					"3-4 hours",
+
+				role:
+					"Synthetic Aperture Radar"
+			}
+		};
 
 		this.startEnvironment =
 			this.startEnvironment.bind(this);
@@ -120,8 +157,11 @@ export default class Earth extends Component {
 				new THREE.Mesh(
 
 					new THREE.SphereGeometry(
+
 						this.state.satSize,
+
 						12,
+
 						12
 					),
 
@@ -360,6 +400,10 @@ export default class Earth extends Component {
 			mount.clientHeight
 		);
 
+		this.renderer.setPixelRatio(
+			window.devicePixelRatio
+		);
+
 		mount.appendChild(
 			this.renderer.domElement
 		);
@@ -447,8 +491,6 @@ export default class Earth extends Component {
 			(2 * Math.PI) /
 			(this.orbitPeriod * 60);
 
-		// EARTH ROTATION
-
 		this.earthAngularVelocity =
 			(2 * Math.PI) /
 			(24 * 3600);
@@ -462,6 +504,7 @@ export default class Earth extends Component {
 		// =====================================
 
 		this.satellites = [];
+
 		this.orbitLines = [];
 
 		// =====================================
@@ -471,7 +514,7 @@ export default class Earth extends Component {
 		this.rebuildConstellation();
 
 		// =====================================
-		// US CARRIER
+		// CARRIER
 		// =====================================
 
 		this.carrierLat =
@@ -500,7 +543,7 @@ export default class Earth extends Component {
 		);
 
 		// =====================================
-		// CARRIER STRIKE RING
+		// STRIKE RANGE
 		// =====================================
 
 		const strikeRadiusKm = 1200;
@@ -560,10 +603,6 @@ export default class Earth extends Component {
 
 			let simTime;
 
-			// =================================
-			// TIMELINE
-			// =================================
-
 			if (
 				this.state
 					.isDraggingTimeline
@@ -589,19 +628,6 @@ export default class Earth extends Component {
 					simulatedMs;
 			}
 
-			if (
-				simTime >
-				this.warEnd.getTime()
-			){
-
-				simTime =
-					this.warEnd.getTime();
-			}
-
-			// =================================
-			// SIM DATE
-			// =================================
-
 			const simDate =
 				new Date(simTime);
 
@@ -620,10 +646,6 @@ export default class Earth extends Component {
 				simProgress:
 					progress
 			});
-
-			// =================================
-			// TIME
-			// =================================
 
 			const t =
 				(
@@ -649,9 +671,6 @@ export default class Earth extends Component {
 				1440
 			){
 
-				// GEO remains fixed
-				// over Earth longitude
-
 				baseAngle =
 					-this.earthAngularVelocity * t;
 
@@ -662,7 +681,7 @@ export default class Earth extends Component {
 			}
 
 			// =================================
-			// CARRIER POSITION
+			// CARRIER
 			// =================================
 
 			const carrierPos =
@@ -678,7 +697,7 @@ export default class Earth extends Component {
 
 			carrierPos.applyAxisAngle(
 
-				new THREE.Vector3(0, 1, 0),
+				new THREE.Vector3(0,1,0),
 
 				this.earth.rotation.y
 			);
@@ -710,7 +729,7 @@ export default class Earth extends Component {
 
 			ringPos.applyAxisAngle(
 
-				new THREE.Vector3(0, 1, 0),
+				new THREE.Vector3(0,1,0),
 
 				this.earth.rotation.y
 			);
@@ -724,23 +743,6 @@ export default class Earth extends Component {
 				0,
 				0
 			);
-
-			const pulse =
-				1 +
-				(Math.sin(t * 0.002) * 0.15);
-
-			this.carrierRing.scale.set(
-
-				pulse,
-
-				pulse,
-
-				pulse
-			);
-
-			// =================================
-			// SATELLITES
-			// =================================
 
 			// =================================
 			// SATELLITES
@@ -762,9 +764,7 @@ export default class Earth extends Component {
 					this.orbitRadius *
 					Math.sin(angle);
 
-				// =================================
-				// INCLINATION
-				// =================================
+				// inclination
 
 				const cosI =
 					Math.cos(
@@ -784,9 +784,7 @@ export default class Earth extends Component {
 					y * sinI +
 					z * cosI;
 
-				// =================================
 				// RAAN
-				// =================================
 
 				const cosR =
 					Math.cos(
@@ -806,9 +804,7 @@ export default class Earth extends Component {
 					x * sinR +
 					zInclined * cosR;
 
-				// =================================
 				// SAT POSITION
-				// =================================
 
 				sat.mesh.position.set(
 
@@ -818,10 +814,6 @@ export default class Earth extends Component {
 
 					zFinal
 				);
-
-				// =================================
-				// GEO / LEO FOOTPRINT
-				// =================================
 
 				const direction =
 					new THREE.Vector3(
@@ -835,14 +827,13 @@ export default class Earth extends Component {
 					).normalize();
 
 				// =================================
-				// GAOFEN-4 GEO COVERAGE
+				// GEO FOOTPRINT
 				// =================================
 
 				if (
-					this.state.orbitPeriod === 1440
+					this.state.orbitPeriod ===
+					1440
 				){
-
-					// GEO hemisphere-scale footprint
 
 					const geoGroundPos =
 						direction.multiplyScalar(
@@ -861,16 +852,8 @@ export default class Earth extends Component {
 						0
 					);
 
-					// =================================
-					// REAL GEO COVERAGE SIZE
-					// =================================
-
-					// ~18,000 km visible region
-
 					const geoCoverageKm =
 						18000;
-
-					// Earth radius = 6371 km
 
 					const geoScale =
 						(geoCoverageKm / 6371) * 6;
@@ -884,40 +867,17 @@ export default class Earth extends Component {
 						geoScale
 					);
 
-					// GEO color
-
 					sat.footprint.material.color.set(
 						"yellow"
 					);
 
-					// transparent atmospheric effect
-
 					sat.footprint.material.opacity =
-						0.10 +
-						(
-							Math.sin(t * 0.0001) *
-							0.03
-						);
-
-					// =================================
-					// SLOW GEO PULSE
-					// =================================
-
-					const geoPulse =
-						1 +
-						(
-							Math.sin(t * 0.00015) *
-							0.04
-						);
-
-					sat.footprint.scale.multiplyScalar(
-						geoPulse
-					);
+						0.10;
 
 				} else {
 
 					// =================================
-					// NORMAL LEO FOOTPRINT
+					// LEO FOOTPRINT
 					// =================================
 
 					const groundPos =
@@ -937,8 +897,6 @@ export default class Earth extends Component {
 						0
 					);
 
-					// smaller tactical footprint
-
 					sat.footprint.scale.set(
 						1,
 						1,
@@ -950,13 +908,9 @@ export default class Earth extends Component {
 					);
 
 					sat.footprint.material.opacity =
-						0.30;
+						0.25;
 				}
 			});
-
-			// =================================
-			// RENDER
-			// =================================
 
 			this.controls.update();
 
@@ -999,7 +953,7 @@ export default class Earth extends Component {
 	}
 
 	// =====================================================
-	// REBUILD CONSTELLATION
+	// REBUILD
 	// =====================================================
 
 	rebuildConstellation(){
@@ -1027,6 +981,7 @@ export default class Earth extends Component {
 		}
 
 		this.satellites = [];
+
 		this.orbitLines = [];
 
 		const numberOfPlanes =
@@ -1095,7 +1050,7 @@ export default class Earth extends Component {
 	}
 
 	// =====================================================
-	// SELECT CONSTELLATION
+	// SELECT SAT
 	// =====================================================
 
 	selectSat(event){
@@ -1132,7 +1087,33 @@ export default class Earth extends Component {
 
 				numberOfPlanes: 3,
 
-				satsPerPlane: 7
+				satsPerPlane: 7,
+
+				selectedSatellite: {
+
+					name: "ICEYE SAR",
+
+					image:
+						"/satellites/iceye.jpg",
+
+					operator:
+						"ICEYE Finland",
+
+					orbit:
+						"LEO Sun-Synchronous",
+
+					altitude:
+						"570 km",
+
+					resolution:
+						"25 cm - 1 m SAR",
+
+					revisit:
+						"3-4 hours",
+
+					role:
+						"Synthetic Aperture Radar"
+				}
 
 			}, () => {
 
@@ -1143,7 +1124,7 @@ export default class Earth extends Component {
 		}
 
 		// =====================================
-		// GAOFEN GEO
+		// GAOFEN-4
 		// =====================================
 
 		else if (
@@ -1171,7 +1152,33 @@ export default class Earth extends Component {
 
 				numberOfPlanes: 1,
 
-				satsPerPlane: 1
+				satsPerPlane: 1,
+
+				selectedSatellite: {
+
+					name: "Gaofen-4",
+
+					image:
+						"/satellites/gaofen4.jpg",
+
+					operator:
+						"CNSA",
+
+					orbit:
+						"Geostationary GEO",
+
+					altitude:
+						"35,786 km",
+
+					resolution:
+						"50 m optical",
+
+					revisit:
+						"20 sec regional scan",
+
+					role:
+						"Persistent ISR / EO"
+				}
 
 			}, () => {
 
@@ -1213,7 +1220,33 @@ export default class Earth extends Component {
 
 				numberOfPlanes: 8,
 
-				satsPerPlane: 5
+				satsPerPlane: 5,
+
+				selectedSatellite: {
+
+					name: "Yaogan",
+
+					image:
+						"/satellites/yaogan.jpg",
+
+					operator:
+						"PLA Strategic Support Force",
+
+					orbit:
+						"LEO Reconnaissance",
+
+					altitude:
+						"700 km",
+
+					resolution:
+						"Sub-meter EO/SAR",
+
+					revisit:
+						"High constellation revisit",
+
+					role:
+						"Military ISR"
+				}
 
 			}, () => {
 
@@ -1315,6 +1348,133 @@ export default class Earth extends Component {
 		return (
 
 			<div className={styles.container}>
+
+				{/* ================================= */}
+				{/* SAT INFO PANEL */}
+				{/* ================================= */}
+
+				<div className={styles.satInfoPanel}>
+
+					<img
+
+						src={
+							this.state
+							.selectedSatellite
+							.image
+						}
+
+						className={
+							styles.satImage
+						}
+					/>
+
+					<div
+						className={
+							styles.satName
+						}
+					>
+
+						{
+							this.state
+							.selectedSatellite
+							.name
+						}
+
+					</div>
+
+					<div
+						className={
+							styles.satSpec
+						}
+					>
+
+						<div>
+
+							<span>
+								Operator:
+							</span>
+
+							{
+								this.state
+								.selectedSatellite
+								.operator
+							}
+
+						</div>
+
+						<div>
+
+							<span>
+								Orbit:
+							</span>
+
+							{
+								this.state
+								.selectedSatellite
+								.orbit
+							}
+
+						</div>
+
+						<div>
+
+							<span>
+								Altitude:
+							</span>
+
+							{
+								this.state
+								.selectedSatellite
+								.altitude
+							}
+
+						</div>
+
+						<div>
+
+							<span>
+								Resolution:
+							</span>
+
+							{
+								this.state
+								.selectedSatellite
+								.resolution
+							}
+
+						</div>
+
+						<div>
+
+							<span>
+								Revisit:
+							</span>
+
+							{
+								this.state
+								.selectedSatellite
+								.revisit
+							}
+
+						</div>
+
+						<div>
+
+							<span>
+								Role:
+							</span>
+
+							{
+								this.state
+								.selectedSatellite
+								.role
+							}
+
+						</div>
+
+					</div>
+
+				</div>
 
 				<div
 
