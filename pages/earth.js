@@ -401,13 +401,19 @@ export default class Earth extends Component {
 		this.carrierLon =
 			62.8574839512631;
 
+		// this.carrierLat =
+		// 	11.856907110439073;
+
+		// this.carrierLon =
+		// 	60.73605440995559
+
 		this.carrier =
 			new THREE.Mesh(
 
 				new THREE.BoxGeometry(
-					0.03,
-					0.01,
-					0.08
+					0.002,
+					0.006,
+					0.001
 				),
 
 				new THREE.MeshBasicMaterial({
@@ -418,16 +424,34 @@ export default class Earth extends Component {
 		this.scene.add(this.carrier);
 
 		// =====================================
-		// CARRIER RING
+		// CARRIER STRIKE RANGE
 		// =====================================
+
+		// Approximate F-35 strike radius
+		// ~1200 km combat radius
+
+		const strikeRadiusKm = 1200;
+
+		// Earth radius equivalent
+		// Earth sphere = 1 unit = 6371 km
+
+		const strikeRadius =
+			(strikeRadiusKm / 6371);
+
+		// visual scaling boost
+		const visualRadius =
+			strikeRadius * 1.4;
 
 		this.carrierRing =
 			new THREE.Mesh(
 
 				new THREE.RingGeometry(
-					0.08,
-					0.085,
-					64
+
+					visualRadius,
+
+					visualRadius + 0.01,
+
+					128
 				),
 
 				new THREE.MeshBasicMaterial({
@@ -438,11 +462,13 @@ export default class Earth extends Component {
 
 					transparent: true,
 
-					opacity: 0.4
+					opacity: 0.25
 				})
 			);
 
-		this.scene.add(this.carrierRing);
+		this.scene.add(
+			this.carrierRing
+		);
 
 		// =====================================
 		// ORBIT PARAMS
@@ -585,31 +611,30 @@ export default class Earth extends Component {
 				earthRotationRate * t;
 
 			// =================================
-			// CARRIER POSITION
+			// CARRIER POSITION (STATIONARY)
 			// =================================
 
-			const earthRotationDeg =
-				THREE.MathUtils.radToDeg(
-					this.earth.rotation.y
-				);
+			// carrier fixed on Earth surface
 
-			const rotatedLon =
-				this.carrierLon -
-				earthRotationDeg;
-
-			const carrierPos =
+			const carrierSurfacePos =
 				this.latLonToVector3(
 
 					this.carrierLat,
 
-					rotatedLon,
+					this.carrierLon,
 
-					this.earthRadius +
-					0.003
+					this.earthRadius + 0.003
 				);
 
+			// rotate with Earth
+
+			carrierSurfacePos.applyAxisAngle(
+				new THREE.Vector3(0, 1, 0),
+				this.earth.rotation.y
+			);
+
 			this.carrier.position.copy(
-				carrierPos
+				carrierSurfacePos
 			);
 
 			this.carrier.lookAt(
@@ -622,19 +647,23 @@ export default class Earth extends Component {
 			// CARRIER RING
 			// =================================
 
-			const ringPos =
+			const ringSurfacePos =
 				this.latLonToVector3(
 
 					this.carrierLat,
 
-					rotatedLon,
+					this.carrierLon,
 
-					this.earthRadius +
-					0.001
+					this.earthRadius + 0.001
 				);
 
+			ringSurfacePos.applyAxisAngle(
+				new THREE.Vector3(0, 1, 0),
+				this.earth.rotation.y
+			);
+
 			this.carrierRing.position.copy(
-				ringPos
+				ringSurfacePos
 			);
 
 			this.carrierRing.lookAt(
