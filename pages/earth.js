@@ -43,6 +43,8 @@ export default class Earth extends Component {
 			satsPerPlane: 7
 		};
 
+		this.simRef = createRef();
+
 		this.startEnvironment =
 			this.startEnvironment.bind(this);
 
@@ -63,27 +65,40 @@ export default class Earth extends Component {
 	}
 
 	// =====================================================
-	// LAT LON TO VECTOR3
+	// LAT/LON TO VECTOR
 	// =====================================================
 
 	latLonToVector3(lat, lon, radius){
 
 		const phi =
-			(90 - lat) * (Math.PI / 180);
+			(90 - lat) *
+			(Math.PI / 180);
 
 		const theta =
-			(lon + 180) * (Math.PI / 180);
+			(lon + 180) *
+			(Math.PI / 180);
 
 		const x =
-			-(radius * Math.sin(phi) * Math.cos(theta));
+			-(
+				radius *
+				Math.sin(phi) *
+				Math.cos(theta)
+			);
 
 		const z =
-			(radius * Math.sin(phi) * Math.sin(theta));
+			radius *
+			Math.sin(phi) *
+			Math.sin(theta);
 
 		const y =
-			radius * Math.cos(phi);
+			radius *
+			Math.cos(phi);
 
-		return new THREE.Vector3(x, y, z);
+		return new THREE.Vector3(
+			x,
+			y,
+			z
+		);
 	}
 
 	// =====================================================
@@ -111,7 +126,9 @@ export default class Earth extends Component {
 					),
 
 					new THREE.MeshBasicMaterial({
-						color: this.state.satColor
+
+						color:
+							this.state.satColor
 					})
 				);
 
@@ -124,25 +141,24 @@ export default class Earth extends Component {
 			const footprint =
 				new THREE.Mesh(
 
-					new THREE.PlaneGeometry(
-						0.05,
-						0.05
+					new THREE.CircleGeometry(
+						0.035,
+						64
 					),
 
 					new THREE.MeshBasicMaterial({
 
-						color: this.state.satColor,
+						color:
+							this.state.satColor,
 
 						transparent: true,
 
-						opacity: 0.3,
+						opacity: 0.25,
 
-						side: THREE.DoubleSide
+						side:
+							THREE.DoubleSide
 					})
 				);
-
-			footprint.rotation.x =
-				-Math.PI / 2;
 
 			this.scene.add(footprint);
 
@@ -167,39 +183,48 @@ export default class Earth extends Component {
 
 	addOrbitLine(raan){
 
-		const segments = 128;
-
 		const points = [];
 
+		const segments = 256;
+
 		const radius =
-			this.orbitRadius * 1.01;
+			this.orbitRadius;
 
 		for (let s = 0; s <= segments; s++){
 
 			const angle =
-				(2 * Math.PI * s) / segments;
+				(2 * Math.PI * s) /
+				segments;
 
 			let x =
-				radius * Math.cos(angle);
+				radius *
+				Math.cos(angle);
 
 			let y = 0;
 
 			let z =
-				radius * Math.sin(angle);
+				radius *
+				Math.sin(angle);
 
 			// inclination
 
 			const cosI =
-				Math.cos(this.inclination);
+				Math.cos(
+					this.inclination
+				);
 
 			const sinI =
-				Math.sin(this.inclination);
+				Math.sin(
+					this.inclination
+				);
 
 			let yInclined =
-				y * cosI - z * sinI;
+				y * cosI -
+				z * sinI;
 
 			let zInclined =
-				y * sinI + z * cosI;
+				y * sinI +
+				z * cosI;
 
 			// RAAN
 
@@ -218,9 +243,13 @@ export default class Earth extends Component {
 				zInclined * cosR;
 
 			points.push(
+
 				new THREE.Vector3(
+
 					xFinal,
+
 					yInclined,
+
 					zFinal
 				)
 			);
@@ -282,8 +311,6 @@ export default class Earth extends Component {
 		// TIME SCALE
 		// =====================================
 
-		// 1 second = 10 simulated minutes
-
 		this.simMinutesPerSecond = 10;
 
 		// =====================================
@@ -292,6 +319,10 @@ export default class Earth extends Component {
 
 		this.scene =
 			new THREE.Scene();
+
+		// =====================================
+		// CAMERA
+		// =====================================
 
 		this.camera =
 			new THREE.PerspectiveCamera(
@@ -312,6 +343,10 @@ export default class Earth extends Component {
 			3
 		);
 
+		// =====================================
+		// RENDERER
+		// =====================================
+
 		this.renderer =
 			new THREE.WebGLRenderer({
 
@@ -319,7 +354,9 @@ export default class Earth extends Component {
 			});
 
 		this.renderer.setSize(
+
 			mount.clientWidth,
+
 			mount.clientHeight
 		);
 
@@ -328,7 +365,22 @@ export default class Earth extends Component {
 		);
 
 		// =====================================
-		// LIGHTS
+		// CONTROLS
+		// =====================================
+
+		this.controls =
+			new OrbitControls(
+
+				this.camera,
+
+				this.renderer.domElement
+			);
+
+		this.controls.enableDamping =
+			true;
+
+		// =====================================
+		// LIGHTING
 		// =====================================
 
 		const sun =
@@ -348,19 +400,6 @@ export default class Earth extends Component {
 			);
 
 		this.scene.add(ambient);
-
-		// =====================================
-		// CONTROLS
-		// =====================================
-
-		this.controls =
-			new OrbitControls(
-				this.camera,
-				this.renderer.domElement
-			);
-
-		this.controls.enableDamping =
-			true;
 
 		// =====================================
 		// EARTH
@@ -392,86 +431,7 @@ export default class Earth extends Component {
 		this.scene.add(this.earth);
 
 		// =====================================
-		// US CARRIER
-		// =====================================
-
-		this.carrierLat =
-			21.888884087895217;
-
-		this.carrierLon =
-			62.8574839512631;
-
-		// this.carrierLat =
-		// 	11.856907110439073;
-
-		// this.carrierLon =
-		// 	60.73605440995559
-
-		this.carrier =
-			new THREE.Mesh(
-
-				new THREE.BoxGeometry(
-					0.002,
-					0.006,
-					0.001
-				),
-
-				new THREE.MeshBasicMaterial({
-					color: "orange"
-				})
-			);
-
-		this.scene.add(this.carrier);
-
-		// =====================================
-		// CARRIER STRIKE RANGE
-		// =====================================
-
-		// Approximate F-35 strike radius
-		// ~1200 km combat radius
-
-		const strikeRadiusKm = 1200;
-
-		// Earth radius equivalent
-		// Earth sphere = 1 unit = 6371 km
-
-		const strikeRadius =
-			(strikeRadiusKm / 6371);
-
-		// visual scaling boost
-		const visualRadius =
-			strikeRadius * 1.4;
-
-		this.carrierRing =
-			new THREE.Mesh(
-
-				new THREE.RingGeometry(
-
-					visualRadius,
-
-					visualRadius + 0.01,
-
-					128
-				),
-
-				new THREE.MeshBasicMaterial({
-
-					color: "orange",
-
-					side: THREE.DoubleSide,
-
-					transparent: true,
-
-					opacity: 0.25
-				})
-			);
-
-		this.scene.add(
-			this.carrierRing
-		);
-
-		// =====================================
-		// ORBIT PARAMS
+		// ORBIT PARAMETERS
 		// =====================================
 
 		this.earthRadius = 1;
@@ -486,6 +446,12 @@ export default class Earth extends Component {
 		this.angularVelocity =
 			(2 * Math.PI) /
 			(this.orbitPeriod * 60);
+
+		// EARTH ROTATION
+
+		this.earthAngularVelocity =
+			(2 * Math.PI) /
+			(24 * 3600);
 
 		this.inclination =
 			this.state.inclination *
@@ -505,7 +471,74 @@ export default class Earth extends Component {
 		this.rebuildConstellation();
 
 		// =====================================
-		// START TIME
+		// US CARRIER
+		// =====================================
+
+		this.carrierLat =
+			21.888884087895217;
+
+		this.carrierLon =
+			62.8574839512631;
+
+		this.carrier =
+			new THREE.Mesh(
+
+				new THREE.BoxGeometry(
+					0.002,
+					0.006,
+					0.001
+				),
+
+				new THREE.MeshBasicMaterial({
+
+					color: "orange"
+				})
+			);
+
+		this.scene.add(
+			this.carrier
+		);
+
+		// =====================================
+		// CARRIER STRIKE RING
+		// =====================================
+
+		const strikeRadiusKm = 1200;
+
+		const strikeRadius =
+			(strikeRadiusKm / 6371);
+
+		this.carrierRing =
+			new THREE.Mesh(
+
+				new THREE.RingGeometry(
+
+					strikeRadius,
+
+					strikeRadius + 0.01,
+
+					128
+				),
+
+				new THREE.MeshBasicMaterial({
+
+					color: "orange",
+
+					side:
+						THREE.DoubleSide,
+
+					transparent: true,
+
+					opacity: 0.25
+				})
+			);
+
+		this.scene.add(
+			this.carrierRing
+		);
+
+		// =====================================
+		// TIMING
 		// =====================================
 
 		this.currentSimBaseTime =
@@ -528,11 +561,12 @@ export default class Earth extends Component {
 			let simTime;
 
 			// =================================
-			// TIMELINE CONTROL
+			// TIMELINE
 			// =================================
 
 			if (
-				this.state.isDraggingTimeline
+				this.state
+					.isDraggingTimeline
 			){
 
 				simTime =
@@ -559,6 +593,7 @@ export default class Earth extends Component {
 				simTime >
 				this.warEnd.getTime()
 			){
+
 				simTime =
 					this.warEnd.getTime();
 			}
@@ -587,7 +622,7 @@ export default class Earth extends Component {
 			});
 
 			// =================================
-			// SAT TIME
+			// TIME
 			// =================================
 
 			const t =
@@ -596,45 +631,60 @@ export default class Earth extends Component {
 					this.warStart.getTime()
 				) / 1000;
 
-			const baseAngle =
-				this.angularVelocity * t;
-
 			// =================================
 			// EARTH ROTATION
 			// =================================
 
-			const earthRotationRate =
-				(2 * Math.PI) /
-				(24 * 3600);
-
 			this.earth.rotation.y =
-				earthRotationRate * t;
+				this.earthAngularVelocity * t;
 
 			// =================================
-			// CARRIER POSITION (STATIONARY)
+			// GEO SUPPORT
 			// =================================
 
-			// carrier fixed on Earth surface
+			let baseAngle;
 
-			const carrierSurfacePos =
+			if (
+				this.state.orbitPeriod ===
+				1440
+			){
+
+				// GEO remains fixed
+				// over Earth longitude
+
+				baseAngle =
+					-this.earthAngularVelocity * t;
+
+			} else {
+
+				baseAngle =
+					this.angularVelocity * t;
+			}
+
+			// =================================
+			// CARRIER POSITION
+			// =================================
+
+			const carrierPos =
 				this.latLonToVector3(
 
 					this.carrierLat,
 
 					this.carrierLon,
 
-					this.earthRadius + 0.003
+					this.earthRadius +
+					0.003
 				);
 
-			// rotate with Earth
+			carrierPos.applyAxisAngle(
 
-			carrierSurfacePos.applyAxisAngle(
 				new THREE.Vector3(0, 1, 0),
+
 				this.earth.rotation.y
 			);
 
 			this.carrier.position.copy(
-				carrierSurfacePos
+				carrierPos
 			);
 
 			this.carrier.lookAt(
@@ -644,26 +694,29 @@ export default class Earth extends Component {
 			);
 
 			// =================================
-			// CARRIER RING
+			// STRIKE RING
 			// =================================
 
-			const ringSurfacePos =
+			const ringPos =
 				this.latLonToVector3(
 
 					this.carrierLat,
 
 					this.carrierLon,
 
-					this.earthRadius + 0.001
+					this.earthRadius +
+					0.001
 				);
 
-			ringSurfacePos.applyAxisAngle(
+			ringPos.applyAxisAngle(
+
 				new THREE.Vector3(0, 1, 0),
+
 				this.earth.rotation.y
 			);
 
 			this.carrierRing.position.copy(
-				ringSurfacePos
+				ringPos
 			);
 
 			this.carrierRing.lookAt(
@@ -677,10 +730,17 @@ export default class Earth extends Component {
 				(Math.sin(t * 0.002) * 0.15);
 
 			this.carrierRing.scale.set(
+
 				pulse,
+
 				pulse,
+
 				pulse
 			);
+
+			// =================================
+			// SATELLITES
+			// =================================
 
 			// =================================
 			// SATELLITES
@@ -702,7 +762,9 @@ export default class Earth extends Component {
 					this.orbitRadius *
 					Math.sin(angle);
 
-				// inclination
+				// =================================
+				// INCLINATION
+				// =================================
 
 				const cosI =
 					Math.cos(
@@ -722,7 +784,9 @@ export default class Earth extends Component {
 					y * sinI +
 					z * cosI;
 
+				// =================================
 				// RAAN
+				// =================================
 
 				const cosR =
 					Math.cos(
@@ -742,6 +806,10 @@ export default class Earth extends Component {
 					x * sinR +
 					zInclined * cosR;
 
+				// =================================
+				// SAT POSITION
+				// =================================
+
 				sat.mesh.position.set(
 
 					xFinal,
@@ -751,9 +819,9 @@ export default class Earth extends Component {
 					zFinal
 				);
 
-				// =============================
-				// FOOTPRINT
-				// =============================
+				// =================================
+				// GEO / LEO FOOTPRINT
+				// =================================
 
 				const direction =
 					new THREE.Vector3(
@@ -766,32 +834,136 @@ export default class Earth extends Component {
 
 					).normalize();
 
-				const groundPos =
-					direction.multiplyScalar(
-						this.earthRadius +
-						0.001
+				// =================================
+				// GAOFEN-4 GEO COVERAGE
+				// =================================
+
+				if (
+					this.state.orbitPeriod === 1440
+				){
+
+					// GEO hemisphere-scale footprint
+
+					const geoGroundPos =
+						direction.multiplyScalar(
+
+							this.earthRadius +
+							0.002
+						);
+
+					sat.footprint.position.copy(
+						geoGroundPos
 					);
 
-				sat.footprint.position.set(
+					sat.footprint.lookAt(
+						0,
+						0,
+						0
+					);
 
-					groundPos.x,
+					// =================================
+					// REAL GEO COVERAGE SIZE
+					// =================================
 
-					groundPos.y,
+					// ~18,000 km visible region
 
-					groundPos.z
-				);
+					const geoCoverageKm =
+						18000;
 
-				sat.footprint.lookAt(
-					0,
-					0,
-					0
-				);
+					// Earth radius = 6371 km
+
+					const geoScale =
+						(geoCoverageKm / 6371) * 6;
+
+					sat.footprint.scale.set(
+
+						geoScale,
+
+						geoScale,
+
+						geoScale
+					);
+
+					// GEO color
+
+					sat.footprint.material.color.set(
+						"yellow"
+					);
+
+					// transparent atmospheric effect
+
+					sat.footprint.material.opacity =
+						0.10 +
+						(
+							Math.sin(t * 0.0001) *
+							0.03
+						);
+
+					// =================================
+					// SLOW GEO PULSE
+					// =================================
+
+					const geoPulse =
+						1 +
+						(
+							Math.sin(t * 0.00015) *
+							0.04
+						);
+
+					sat.footprint.scale.multiplyScalar(
+						geoPulse
+					);
+
+				} else {
+
+					// =================================
+					// NORMAL LEO FOOTPRINT
+					// =================================
+
+					const groundPos =
+						direction.multiplyScalar(
+
+							this.earthRadius +
+							0.001
+						);
+
+					sat.footprint.position.copy(
+						groundPos
+					);
+
+					sat.footprint.lookAt(
+						0,
+						0,
+						0
+					);
+
+					// smaller tactical footprint
+
+					sat.footprint.scale.set(
+						1,
+						1,
+						1
+					);
+
+					sat.footprint.material.color.set(
+						this.state.satColor
+					);
+
+					sat.footprint.material.opacity =
+						0.30;
+				}
 			});
+
+			// =================================
+			// RENDER
+			// =================================
 
 			this.controls.update();
 
 			this.renderer.render(
+
 				this.scene,
+
 				this.camera
 			);
 		};
@@ -819,7 +991,9 @@ export default class Earth extends Component {
 		};
 
 		window.addEventListener(
+
 			"resize",
+
 			this.handleResize
 		);
 	}
@@ -829,8 +1003,6 @@ export default class Earth extends Component {
 	// =====================================================
 
 	rebuildConstellation(){
-
-		// remove old sats
 
 		if (this.satellites){
 
@@ -843,36 +1015,19 @@ export default class Earth extends Component {
 				this.scene.remove(
 					sat.footprint
 				);
-
-				sat.mesh.geometry.dispose();
-
-				sat.mesh.material.dispose();
-
-				sat.footprint.geometry.dispose();
-
-				sat.footprint.material.dispose();
 			});
 		}
-
-		this.satellites = [];
-
-		// remove old lines
 
 		if (this.orbitLines){
 
 			this.orbitLines.forEach((line) => {
 
 				this.scene.remove(line);
-
-				line.geometry.dispose();
-
-				line.material.dispose();
 			});
 		}
 
+		this.satellites = [];
 		this.orbitLines = [];
-
-		// build
 
 		const numberOfPlanes =
 			this.state.numberOfPlanes;
@@ -952,7 +1107,10 @@ export default class Earth extends Component {
 		// ICEYE
 		// =====================================
 
-		if (constellation === "ICEYE_LEO"){
+		if (
+			constellation ===
+			"ICEYE_LEO"
+		){
 
 			this.camera.position.set(
 				0,
@@ -985,7 +1143,7 @@ export default class Earth extends Component {
 		}
 
 		// =====================================
-		// GEO
+		// GAOFEN GEO
 		// =====================================
 
 		else if (
@@ -1001,11 +1159,11 @@ export default class Earth extends Component {
 
 			this.setState({
 
-				satColor: "yellow",
+				satColor: "red",
 
 				altitude: 5.617,
 
-				inclination: 0.1,
+				inclination: 0.0,
 
 				orbitPeriod: 1440,
 
@@ -1013,11 +1171,14 @@ export default class Earth extends Component {
 
 				numberOfPlanes: 1,
 
-				satsPerPlane: 3
+				satsPerPlane: 1
 
 			}, () => {
 
 				this.applyOrbitParameters();
+
+				this.angularVelocity =
+					this.earthAngularVelocity;
 
 				this.rebuildConstellation();
 			});
@@ -1084,7 +1245,8 @@ export default class Earth extends Component {
 
 		this.setState({
 
-			simProgress: progress,
+			simProgress:
+				progress,
 
 			timeT:
 				new Date(simTime)
@@ -1096,7 +1258,8 @@ export default class Earth extends Component {
 
 		this.setState({
 
-			isDraggingTimeline: true
+			isDraggingTimeline:
+				true
 		});
 	}
 
@@ -1110,7 +1273,8 @@ export default class Earth extends Component {
 
 		this.setState({
 
-			isDraggingTimeline: false
+			isDraggingTimeline:
+				false
 		});
 	}
 
@@ -1130,7 +1294,9 @@ export default class Earth extends Component {
 		);
 
 		window.removeEventListener(
+
 			"resize",
+
 			this.handleResize
 		);
 
@@ -1151,17 +1317,23 @@ export default class Earth extends Component {
 			<div className={styles.container}>
 
 				<div
+
 					ref={this.simRef}
+
 					className={styles.satSim}
 				/>
 
-				{/* ================================= */}
-				{/* INFO */}
-				{/* ================================= */}
+				<div
+					className={
+						styles.overlayInfo
+					}
+				>
 
-				<div className={styles.overlayInfo}>
-
-					<div className={styles.title}>
+					<div
+						className={
+							styles.title
+						}
+					>
 
 						<div>
 							Iranian War March 2026
@@ -1175,11 +1347,11 @@ export default class Earth extends Component {
 
 				</div>
 
-				{/* ================================= */}
-				{/* TIMELINE */}
-				{/* ================================= */}
-
-				<div className={styles.timelineContainer}>
+				<div
+					className={
+						styles.timelineContainer
+					}
+				>
 
 					<input
 
@@ -1207,42 +1379,18 @@ export default class Earth extends Component {
 							this.endTimelineDrag
 						}
 
-						onTouchStart={
-							this.startTimelineDrag
-						}
-
-						onTouchEnd={
-							this.endTimelineDrag
-						}
-
 						className={
 							styles.timelineSlider
 						}
 					/>
 
-					<div
-						className={
-							styles.timelineLabels
-						}
-					>
-
-						<div>
-							Mar 1 2026
-						</div>
-
-						<div>
-							Mar 2 2026
-						</div>
-
-					</div>
-
 				</div>
 
-				{/* ================================= */}
-				{/* CONTROLS */}
-				{/* ================================= */}
-
-				<div className={styles.hoangControl}>
+				<div
+					className={
+						styles.hoangControl
+					}
+				>
 
 					<div
 
@@ -1254,7 +1402,7 @@ export default class Earth extends Component {
 							this.selectSat
 						}
 
-						data-satID="ICEYE_LEO"
+						data-satid="ICEYE_LEO"
 					>
 
 						ICEYE LEO
@@ -1271,7 +1419,7 @@ export default class Earth extends Component {
 							this.selectSat
 						}
 
-						data-satID="GAOFEN4_GEO"
+						data-satid="GAOFEN4_GEO"
 					>
 
 						GaoFen 4 GEO
@@ -1288,7 +1436,7 @@ export default class Earth extends Component {
 							this.selectSat
 						}
 
-						data-satID="YAOGAN_LEO"
+						data-satid="YAOGAN_LEO"
 					>
 
 						YaoGan LEO

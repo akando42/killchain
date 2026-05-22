@@ -43,8 +43,8 @@ https://www.youtube.com/watch?v=6kR7ifQT-B4
 [X] Reduce Simulation Time to 24 hours of March 1
 [X] Show Satelite observation area with real world specs
 
-[ ] Simulate US carrier stationary along the Coast of Oman at coordinate 21.888884087895217, 62.8574839512631
-[ ] Simulate Iranian IRGC Targeting US Carrier with Chinese Satellite Clues for March 1
+[X] Simulate US carrier stationary along the Coast of Oman at coordinate 21.888884087895217, 62.8574839512631
+[X] Simulate Iranian IRGC Targeting US Carrier with Chinese Satellite Clues for March 1
 
 [ ] Read the Code, Understand the Maths and Note on Paper
 ```
