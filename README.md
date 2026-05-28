@@ -46,6 +46,25 @@ https://www.youtube.com/watch?v=6kR7ifQT-B4
 [X] Simulate US carrier stationary along the Coast of Oman at coordinate 21.888884087895217, 62.8574839512631
 [X] Simulate Iranian IRGC Targeting US Carrier with Chinese Satellite Clues for March 1
 
+[X] Toggle Among 3 Carriers On Click to display its Striking and Defensive circle
+[X] Toggle Among 5 Missile Options
+
+[ ] Simulate Ballistic Missile Range from Different Launch Sites
+==> Qiam-1 1.935 km/s 800 km No RADAR Homing
+==> Kheibar Shekan 3.5 km/s 1450 km No RADAR Homing
+==> Fattah 2 4.5 km/s 1500 km No RADAR Homing
+==> DF17 2.7 km/s 2100 km RADAR Homing
+==> DF21 2.1 km/s 1600 km RADAR Homing
+
+[ ] Simulate Satellite Detection Event with Striking Coordinate 
+[ ] Missile Launch at Carrier 15 mins after Satellite Detection Event
+
+[ ] Calculate On Target Strike Probability Formula basing on 
+Missile Speed, Range, Carrier Distance and Homing Techniques
+
+[ ] Build new satelite constellation to track US Carrier
+[ ] Build new missiles to target US Carrier
+
 [ ] Read the Code, Understand the Maths and Note on Paper
 ```
 // Animating Satellite Orbit
@@ -78,22 +97,6 @@ https://www.youtube.com/watch?v=6kR7ifQT-B4
 		sat.mesh.position.set(xFinal, yInclined, zFinal)
 	})
 ```
-[X] Toggle Among 3 Carriers On Click to display its Striking and Defensive circle
-
-[X] Toggle Among 5 Missile Options
-
-[ ] Missile Launch at Carrier After Satellite Detection Event 
-
-[ ] Simulate Ballistic Missile Range from Different Launch Sites
-
-==> Qiam-1 1.935 km/s 800 km No RADAR Homing
-==> Kheibar Shekan 3.5 km/s 1450 km No RADAR Homing
-==> Fattah 2 4.5 km/s 1500 km No RADAR Homing
-==> DF17 2.7 km/s 2100 km RADAR Homing
-==> DF21 2.1 km/s 1600 km RADAR Homing
-
-
-[ ] Build your satelite constellation to track US Carrier
 
 
 
