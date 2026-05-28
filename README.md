@@ -49,7 +49,7 @@ https://www.youtube.com/watch?v=6kR7ifQT-B4
 [X] Toggle Among 3 Carriers On Click to display its Striking and Defensive circle
 [X] Toggle Among 5 Missile Options
 
-[ ] Simulate Ballistic Missile Range from Different Launch Sites
+[ ] Simulate Ballistic Missile Range from Different 2 Launch Sites via a Striking circle when select the missile option from right panel
 ==> Qiam-1 1.935 km/s 800 km No RADAR Homing
 ==> Kheibar Shekan 3.5 km/s 1450 km No RADAR Homing
 ==> Fattah 2 4.5 km/s 1500 km No RADAR Homing
@@ -97,6 +97,8 @@ Missile Speed, Range, Carrier Distance and Homing Techniques
 		sat.mesh.position.set(xFinal, yInclined, zFinal)
 	})
 ```
+
+[ ] Seabed Detection Method For Missile Strike Coordination
 
 
 

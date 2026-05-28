@@ -734,9 +734,11 @@ export default class Earth extends Component {
 		// 	this.defenseRing
 		// );
 
-		//
-		// USS ABRAHAM
-		//
+		// =====================================
+		// MISSILE STRIKE RINGS
+		// =====================================
+
+		this.missileStrikeRings = [];
 
 		// =====================================================
 		// MULTI CARRIER SYSTEM
@@ -1051,6 +1053,25 @@ export default class Earth extends Component {
 				lat: site.lat,
 
 				lon: site.lon
+			});
+		});
+
+		// =====================================
+		// CREATE MISSILE STRIKE RINGS
+		// =====================================
+
+		missileSites.forEach((site) => {
+
+			this.createMissileStrikeRing({
+
+				lat: site.lat,
+				lon: site.lon,
+				rangeKm:
+					parseFloat(
+						this.state.selectedMissile.range
+					),
+
+				color: "yellow"
 			});
 		});
 
@@ -1528,6 +1549,52 @@ export default class Earth extends Component {
 			} else {
 				this.kheibarMissile.visible = false;
 			}
+
+			// =================================
+			// MISSILE STRIKE RINGS
+			// =================================
+
+			this.missileStrikeRings.forEach((ringObj) => {
+
+				const ringPos =
+					this.latLonToVector3(
+
+						ringObj.lat,
+						ringObj.lon,
+
+						this.earthRadius + 0.002
+					);
+
+				ringPos.applyAxisAngle(
+
+					new THREE.Vector3(0,1,0),
+
+					this.earth.rotation.y
+				);
+
+				ringObj.mesh.position.copy(
+					ringPos
+				);
+
+				ringObj.mesh.lookAt(
+					0,
+					0,
+					0
+				);
+
+				// pulse effect
+
+				const pulse =
+					1 +
+					(Math.sin(t * 0.002) * 0.03);
+
+				ringObj.mesh.scale.set(
+
+					pulse,
+					pulse,
+					pulse
+				);
+			});
 
 			// =================================
 			// SATELLITES
@@ -2051,19 +2118,106 @@ export default class Earth extends Component {
 
 	// SELECT MISSILE
 	selectMissile(missile){
-
 		this.setState({
 
 			selectedMissile: missile
 		});
 
-		// OPTIONAL:
-		// update simulation speed/range
+		// =====================================
+		// UPDATE MISSILE PARAMETERS
+		// =====================================
 
 		this.missileSpeedKmS =
 			parseFloat(
 				missile.speed
-			) || 3.5;
+			);
+
+		this.missileRangeKm =
+			parseFloat(
+				missile.range
+			);
+
+		this.missileFlightDuration =
+			(this.missileRangeKm /
+			this.missileSpeedKmS) * 1000;
+
+		// =====================================
+		// REMOVE OLD STRIKE RINGS
+		// =====================================
+
+		this.missileStrikeRings.forEach((ringObj) => {
+
+			this.scene.remove(
+				ringObj.mesh
+			);
+		});
+
+		this.missileStrikeRings = [];
+
+		// =====================================
+		// REBUILD NEW RINGS
+		// =====================================
+
+		this.missileCities.forEach((site) => {
+
+			this.createMissileStrikeRing({
+
+				lat: site.lat,
+				lon: site.lon,
+
+				rangeKm:
+					this.missileRangeKm,
+
+				color: "blue"
+			});
+		});
+	}
+
+	// =====================================================
+	// CREATE MISSILE STRIKE CIRCLE
+	// =====================================================
+
+	createMissileStrikeRing({
+		lat,
+		lon,
+		rangeKm = 1450,
+		color = "yellow"
+	}){
+
+		const radius =
+			(rangeKm / 6371);
+
+		const ring =
+			new THREE.Mesh(
+
+				new THREE.RingGeometry(
+
+					radius,
+					radius + 0.003,
+					128
+				),
+
+				new THREE.MeshBasicMaterial({
+
+					color,
+
+					side:
+						THREE.DoubleSide,
+
+					transparent: true,
+
+					opacity: 0.25
+				})
+			);
+
+		this.scene.add(ring);
+
+		this.missileStrikeRings.push({
+
+			lat,
+			lon,
+			mesh: ring
+		});
 	}
 
 	// =====================================================
