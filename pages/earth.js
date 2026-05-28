@@ -87,7 +87,7 @@ export default class Earth extends Component {
 				{
 					name: "Qiam-1",
 					image: "/missiles/qiam1.jpg",
-					speed: "1.935 km/s",
+					speed: "1.9 km/s",
 					range: "800 km",
 					homing: "GPS / INS",
 					type: "SRBM",
@@ -139,7 +139,7 @@ export default class Earth extends Component {
 			selectedMissile: {
 				name: "Kheibar Shekan",
 				image: "/missiles/kheibar.jpg",
-				speed: "Mach 10+",
+				speed: "3.5 km/s",
 				range: "1450 km",
 				homing: "GPS / INS",
 				type: "MRBM",
