@@ -41,11 +41,13 @@
 	position: absolute;
 	z-index: 10;
 	right: 0;
-	top: 30vh;
+	top: 20vh;
 	padding: 10px;
-	width: 10vw;
+	min-width: 10vw;
 	display: flex;
 	flex-direction: column;
+	align-items: center;
+	justify-content: center;
 }
 
 
@@ -53,7 +55,8 @@
 	padding: 10px;
 	background-color: white;
 	margin: 10px 0;
-	text-align: center;
+	text-align: center;width: ;
+	width: 10vw;
 }
 
 .satSelector:active {
@@ -81,6 +84,46 @@
 	color:white;
 	font-size:12px;
 	margin-top:4px;
+}
+
+/* CARRIER TARGETING SELECTION */
+
+
+.carrierControls {
+	position: absolute;
+	display: flex;
+	flex-direction: row;
+	bottom: 10vh;
+	width: 100vw;
+	align-items: center;
+	justify-content: center;
+}
+
+.carrierSelector {
+	padding: 10px;
+	min-width: 10vw;
+	background-color: red;
+	margin: 10px;
+	text-align: center;width: ;
+}
+
+.carrierSelector:active {
+	transform: scale(0.9);
+}
+
+
+/* MISSILE SELECTION */
+
+
+.missileSelector {
+	padding: 10px;
+	width: 10vw;
+	background-color: black;
+	color: yellow;
+	margin: 10px;
+	text-align: center;
+	font-weight: 700;
+	border: 1px solid yellow;
 }
 
 /* ======================================== */
@@ -158,4 +201,29 @@
 	font-weight: 700;
 
 	margin-right: 6px;
+}
+
+.missileInfoPanel{
+
+	position: absolute;
+
+	top: 420px;
+
+	left: 20px;
+
+	width: 280px;
+
+	background: rgba(0,0,0,0.75);
+
+	backdrop-filter: blur(10px);
+
+	border: 1px solid rgba(255,255,255,0.1);
+
+	border-radius: 12px;
+
+	padding: 14px;
+
+	color: white;
+
+	z-index: 20;
 }

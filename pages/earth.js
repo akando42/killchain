@@ -79,7 +79,91 @@ export default class Earth extends Component {
 
 				role:
 					"Synthetic Aperture Radar"
-			}
+			},
+
+			// MISSILE SELECTION 
+
+			missiles: [
+				{
+					name: "Qiam-1",
+					image: "/missiles/qiam1.jpg",
+					speed: "1.935 km/s",
+					range: "800 km",
+					homing: "GPS / INS",
+					type: "SRBM",
+					warhead: "750 kg",
+					role: "Ballistic Strike"
+				},
+				{
+					name: "Kheibar Shekan",
+					image: "/missiles/kheibar.jpg",
+					speed: "3.5 km/s",
+					range: "1450 km",
+					homing: "GPS / INS",
+					type: "MRBM",
+					warhead: "High Explosive",
+					role: "Precision Strike"
+				},
+				{
+					name: "Fattah2",
+					image: "/missiles/fattah2.jpg",
+					speed: "4.5 km/s",
+					range: "1500 km",
+					homing: "Guided",
+					type: "HGV",
+					warhead: "Maneuverable",
+					role: "Hypersonic Penetration"
+				},
+				{
+					name: "DF17",
+					image: "/missiles/df17.jpg",
+					speed: "2.7 km/s",
+					range: "2100 km",
+					homing: "Radar",
+					type: "MRBM + HGV",
+					warhead: "Conventional",
+					role: "Hypersonic Glide"
+				},
+				{
+					name: "DF21",
+					image: "/missiles/df21.jpg",
+					speed: "2.1 km/s",
+					range: "1650 km",
+					homing: "Radar",
+					type: "ASBM",
+					warhead: "Anti-Ship",
+					role: "Carrier Killer"
+				}
+			],
+
+			selectedMissile: {
+				name: "Kheibar Shekan",
+				image: "/missiles/kheibar.jpg",
+				speed: "Mach 10+",
+				range: "1450 km",
+				homing: "GPS / INS",
+				type: "MRBM",
+				warhead: "High Explosive",
+				role: "Precision Strike"
+			},
+
+			// CARRIER SELECTION
+			activeCarrriers: [
+				{
+					name: "USS Abraham L",
+					image:"/satellites/iceye.jpg"
+				},
+				{
+					name: "USS George Washington",
+					image:"/satellites/iceye.jpg"
+				},
+					{
+					name: "USS George W Bush",
+					image:"/satellites/iceye.jpg"
+				}
+			],
+
+			selectedCarrierIndex: 0
 		};
 
 		this.startEnvironment =
@@ -99,6 +183,10 @@ export default class Earth extends Component {
 
 		this.endTimelineDrag =
 			this.endTimelineDrag.bind(this);
+
+		this.selectCarrier = this.selectCarrier.bind(this);
+
+		this.selectMissile = this.selectMissile.bind(this);
 	}
 
 	// =====================================================
@@ -136,6 +224,28 @@ export default class Earth extends Component {
 			y,
 			z
 		);
+	}
+
+	// =====================================================
+	// DMS TO DECIMAL
+	// =====================================================
+
+	dmsToDecimal(deg, min, sec, dir){
+
+		let dec =
+			deg +
+			(min / 60) +
+			(sec / 3600);
+
+		if (
+			dir === "S" ||
+			dir === "W"
+		){
+
+			dec *= -1;
+		}
+
+		return dec;
 	}
 
 	// =====================================================
@@ -513,71 +623,512 @@ export default class Earth extends Component {
 
 		this.rebuildConstellation();
 
+		//
+		// USS ABRAHAM
+		//
+
 		// =====================================
 		// CARRIER
 		// =====================================
 
-		this.carrierLat =
-			21.888884087895217;
+		// this.carrierLat =
+		// 	21.888884087895217;
 
-		this.carrierLon =
-			62.8574839512631;
+		// this.carrierLon =
+		// 	62.8574839512631;
 
-		this.carrier =
-			new THREE.Mesh(
+		// this.carrier =
+		// 	new THREE.Mesh(
 
-				new THREE.BoxGeometry(
-					0.002,
-					0.006,
-					0.001
-				),
+		// 		new THREE.BoxGeometry(
+		// 			0.002,
+		// 			0.006,
+		// 			0.001
+		// 		),
 
-				new THREE.MeshBasicMaterial({
+		// 		new THREE.MeshBasicMaterial({
 
-					color: "orange"
-				})
+		// 			color: "orange"
+		// 		})
+		// 	);
+
+		// this.scene.add(
+		// 	this.carrier
+		// );
+
+		// // =====================================
+		// // STRIKE RANGE
+		// // =====================================
+
+		// const strikeRadiusKm = 2000;
+
+		// const strikeRadius =
+		// 	(strikeRadiusKm / 6371);
+
+		// this.carrierRing =
+		// 	new THREE.Mesh(
+
+		// 		new THREE.RingGeometry(
+
+		// 			strikeRadius,
+
+		// 			strikeRadius + 0.001,
+
+		// 			64
+		// 		),
+
+		// 		new THREE.MeshBasicMaterial({
+
+		// 			color: "yellow",
+
+		// 			side:
+		// 				THREE.DoubleSide,
+
+		// 			transparent: true,
+
+		// 			opacity: 0.6
+		// 		})
+		// 	);
+
+		// this.scene.add(
+		// 	this.carrierRing
+		// );
+
+		// // =====================================
+		// // DEFENSIVE INTERCEPTION RING
+		// // =====================================
+
+		// // Approximate SM-6 interception radius
+
+		// const defenseRadiusKm = 460;
+
+		// const defenseRadius =
+		// 	(defenseRadiusKm / 6371);
+
+		// this.defenseRing =
+		// 	new THREE.Mesh(
+
+		// 		new THREE.RingGeometry(
+
+		// 			defenseRadius,
+
+		// 			defenseRadius + 0.001,
+
+		// 			64
+		// 		),
+
+		// 		new THREE.MeshBasicMaterial({
+
+		// 			color: "red",
+
+		// 			side:
+		// 				THREE.DoubleSide,
+
+		// 			transparent: true,
+
+		// 			opacity: 0.55
+		// 		})
+		// 	);
+
+		// this.scene.add(
+		// 	this.defenseRing
+		// );
+
+		//
+		// USS ABRAHAM
+		//
+
+		// =====================================================
+		// MULTI CARRIER SYSTEM
+		// Replace your SINGLE carrier section with this version
+		// =====================================================
+
+		// =====================================
+		// MULTI CARRIER STORAGE
+		// =====================================
+
+		this.carriers = [];
+
+		// =====================================================
+		// ADD CARRIER HELPER
+		// =====================================================
+
+		this.addCarrier = ({
+			name = "Carrier",
+			lat = 0,
+			lon = 0,
+			color = "orange",
+			strikeRadiusKm = 2000,
+			defenseRadiusKm = 460
+		}) => {
+
+			// =================================
+			// CARRIER BODY
+			// =================================
+
+			const carrierMesh =
+				new THREE.Mesh(
+
+					new THREE.BoxGeometry(
+						0.002,
+						0.006,
+						0.001
+					),
+
+					new THREE.MeshBasicMaterial({
+
+						color
+					})
+				);
+
+			this.scene.add(
+				carrierMesh
 			);
 
-		this.scene.add(
-			this.carrier
-		);
+			// =================================
+			// STRIKE RING
+			// =================================
+
+			const strikeRadius =
+				(strikeRadiusKm / 6371);
+
+			const strikeRing =
+				new THREE.Mesh(
+
+					new THREE.RingGeometry(
+
+						strikeRadius,
+
+						strikeRadius + 0.001,
+
+						64
+					),
+
+					new THREE.MeshBasicMaterial({
+
+						color: "yellow",
+
+						side:
+							THREE.DoubleSide,
+
+						transparent: true,
+
+						opacity: 0.35
+					})
+				);
+
+			this.scene.add(
+				strikeRing
+			);
+
+			// =================================
+			// DEFENSE RING
+			// =================================
+
+			const defenseRadius =
+				(defenseRadiusKm / 6371);
+
+			const defenseRing =
+				new THREE.Mesh(
+
+					new THREE.RingGeometry(
+
+						defenseRadius,
+
+						defenseRadius + 0.001,
+
+						64
+					),
+
+					new THREE.MeshBasicMaterial({
+
+						color: "red",
+
+						side:
+							THREE.DoubleSide,
+
+						transparent: true,
+
+						opacity: 0.55
+					})
+				);
+
+			this.scene.add(
+				defenseRing
+			);
+
+			strikeRing.visible = false;
+			defenseRing.visible = false;
+
+
+			// =================================
+			// SAVE
+			// =================================
+
+			this.carriers.push({
+
+				name,
+
+				lat,
+
+				lon,
+
+				mesh:
+					carrierMesh,
+
+				strikeRing,
+
+				defenseRing
+			});
+		};
+
+		// =====================================================
+		// ADD MULTIPLE CARRIERS
+		// ONLY COORDINATES REQUIRED
+		// =====================================================
+
+		this.addCarrier({
+
+			name:
+				"USS Abraham Lincoln",
+
+			lat:
+				21.888884087895217,
+
+			lon:
+				62.8574839512631,
+
+			color:
+				"red"
+		});
+
+		this.addCarrier({
+
+			name:
+				"USS George Washington",
+
+			lat: 14.176850031295444,
+
+			lon: 56.58082734000118,
+
+			color:
+				"red"
+		});
+
+		this.addCarrier({
+
+			name:
+				"USS George W Bush",
+
+			lat:
+				32.67233737126122,  
+
+			lon:
+				33.360104839617364,
+
+			color:
+				"lime"
+		});
+
+		// this.addCarrier({
+
+		// 	name:
+		// 		"Carrier Group Delta",
+
+		// 	lat:
+		// 		14.5,
+
+		// 	lon:
+		// 		72.0,
+
+		// 	color:
+		// 		"magenta"
+		// });
 
 		// =====================================
-		// STRIKE RANGE
+		// SIMULATED MISSILE CITIES
 		// =====================================
 
-		const strikeRadiusKm = 1200;
+		this.missileCities = [];
 
-		const strikeRadius =
-			(strikeRadiusKm / 6371);
+		// =====================================
+		// COORDINATES
+		// =====================================
 
-		this.carrierRing =
-			new THREE.Mesh(
+		// 33°30'04.70"N
+		const missileLat =
+			this.dmsToDecimal(
+				27,
+				38,
+				15.0,
+				"N"
+			);
 
-				new THREE.RingGeometry(
+		// 48°17'01.26"E
+		const missileLon =
+			this.dmsToDecimal(
+				54,
+				15,
+				20.9,
+				"E"
+			);
 
-					strikeRadius,
+		// second simulated site
+		const missileLat2 =
+			missileLat + 6;
 
-					strikeRadius + 0.01,
+		const missileLon2 =
+			missileLon - 6;
 
-					128
-				),
+		const missileSites = [
 
+			{
+				lat: missileLat,
+				lon: missileLon
+			},
+
+			{
+				lat: missileLat2,
+				lon: missileLon2
+			}
+		];
+
+		// =====================================
+		// CREATE TRIANGLES
+		// =====================================
+
+		missileSites.forEach((site) => {
+
+			const triangleShape =
+				new THREE.Shape();
+
+			triangleShape.moveTo(
+				0,
+				0.010/3
+			);
+
+			triangleShape.lineTo(
+				-0.008/3,
+				-0.008/3
+			);
+
+			triangleShape.lineTo(
+				0.008/3,
+				-0.008/3
+			);
+
+			triangleShape.lineTo(
+				0,
+				0.010/3
+			);
+
+			const geometry =
+				new THREE.ShapeGeometry(
+					triangleShape
+				);
+
+			const material =
 				new THREE.MeshBasicMaterial({
 
-					color: "orange",
+					color: "yellow",
 
 					side:
-						THREE.DoubleSide,
+						THREE.DoubleSide
+				});
 
-					transparent: true,
+			const marker =
+				new THREE.Mesh(
+					geometry,
+					material
+				);
 
-					opacity: 0.25
+			this.scene.add(marker);
+
+			this.missileCities.push({
+
+				mesh: marker,
+
+				lat: site.lat,
+
+				lon: site.lon
+			});
+		});
+
+		// =====================================
+		// KHEIBAR SHEKAN SIMULATION
+		// =====================================
+
+		// launch at 12:00 UTC
+		this.missileLaunchTime =
+			new Date(
+				"2026-03-01T12:00:00Z"
+			).getTime();
+
+		// missile parameters
+		this.missileSpeedKmS = 3.5;
+
+		this.missileRangeKm = 1450;
+
+		// approximate flight duration
+		this.missileFlightDuration =
+			(this.missileRangeKm /
+			this.missileSpeedKmS) * 1000;
+
+		// launch site
+		this.missileLaunchLat =
+			missileLat;
+
+		this.missileLaunchLon =
+			missileLon;
+
+		// missile object
+		this.kheibarMissile =
+			new THREE.Mesh(
+
+				new THREE.SphereGeometry(
+					0.001,
+					12,
+					12
+				),
+
+				new THREE.MeshBasicMaterial({
+
+					color: "yellow"
 				})
 			);
 
 		this.scene.add(
-			this.carrierRing
+			this.kheibarMissile
+		);
+
+		this.kheibarMissile.visible = false;
+
+		// trajectory line
+		this.missileTrailPoints = [];
+
+		this.missileTrailGeometry =
+			new THREE.BufferGeometry();
+
+		this.missileTrailMaterial =
+			new THREE.LineBasicMaterial({
+
+				color: "orange",
+
+				transparent: true,
+
+				opacity: 1
+			});
+
+		this.missileTrail =
+			new THREE.Line(
+
+				this.missileTrailGeometry,
+
+				this.missileTrailMaterial
+			);
+
+		this.scene.add(
+			this.missileTrail
 		);
 
 		// =====================================
@@ -681,68 +1232,302 @@ export default class Earth extends Component {
 			}
 
 			// =================================
-			// CARRIER
+			// MULTI CARRIERS
 			// =================================
 
-			const carrierPos =
-				this.latLonToVector3(
+			this.carriers.forEach((carrier, index) => {
 
-					this.carrierLat,
+				// =============================
+				// CARRIER POSITION
+				// =============================
 
-					this.carrierLon,
+				const carrierPos =
+					this.latLonToVector3(
 
-					this.earthRadius +
-					0.003
+						carrier.lat,
+
+						carrier.lon,
+
+						this.earthRadius +
+						0.003
+					);
+
+				carrierPos.applyAxisAngle(
+
+					new THREE.Vector3(0,1,0),
+
+					this.earth.rotation.y
 				);
 
-			carrierPos.applyAxisAngle(
-
-				new THREE.Vector3(0,1,0),
-
-				this.earth.rotation.y
-			);
-
-			this.carrier.position.copy(
-				carrierPos
-			);
-
-			this.carrier.lookAt(
-				0,
-				0,
-				0
-			);
-
-			// =================================
-			// STRIKE RING
-			// =================================
-
-			const ringPos =
-				this.latLonToVector3(
-
-					this.carrierLat,
-
-					this.carrierLon,
-
-					this.earthRadius +
-					0.001
+				carrier.mesh.position.copy(
+					carrierPos
 				);
 
-			ringPos.applyAxisAngle(
+				carrier.mesh.lookAt(
+					0,
+					0,
+					0
+				);
 
-				new THREE.Vector3(0,1,0),
+				// =============================
+				// STRIKE RING
+				// =============================
 
-				this.earth.rotation.y
-			);
+				const ringPos =
+					this.latLonToVector3(
 
-			this.carrierRing.position.copy(
-				ringPos
-			);
+						carrier.lat,
 
-			this.carrierRing.lookAt(
-				0,
-				0,
-				0
-			);
+						carrier.lon,
+
+						this.earthRadius +
+						0.001
+					);
+
+				ringPos.applyAxisAngle(
+
+					new THREE.Vector3(0,1,0),
+
+					this.earth.rotation.y
+				);
+
+				carrier.strikeRing.position.copy(
+					ringPos
+				);
+
+				carrier.strikeRing.lookAt(
+					0,
+					0,
+					0
+				);
+
+				// =============================
+				// DEFENSE RING
+				// =============================
+
+				carrier.defenseRing.position.copy(
+					ringPos
+				);
+
+				carrier.defenseRing.lookAt(
+					0,
+					0,
+					0
+				);
+
+
+				const isSelected =
+					index ===
+					this.state.selectedCarrierIndex;
+
+				carrier.strikeRing.visible =
+					isSelected;
+
+				carrier.defenseRing.visible =
+					isSelected;
+
+				// =============================
+				// PULSE EFFECT
+				// =============================
+
+				const pulse =
+					1 +
+					(Math.sin(
+						(t * 0.004) +
+						index
+					) * 0.05);
+
+				carrier.defenseRing.scale.set(
+
+					pulse,
+
+					pulse,
+
+					pulse
+				);
+			});
+
+			
+			// =================================
+			// MISSILE CITY MARKERS
+			// =================================
+
+			this.missileCities.forEach((site) => {
+
+				const pos =
+					this.latLonToVector3(
+
+						site.lat,
+
+						site.lon,
+
+						this.earthRadius +
+						0.004
+					);
+
+				pos.applyAxisAngle(
+
+					new THREE.Vector3(0,1,0),
+
+					this.earth.rotation.y
+				);
+
+				site.mesh.position.copy(pos);
+
+				site.mesh.lookAt(
+					0,
+					0,
+					0
+				);
+
+				// slow pulse
+
+				const pulse =
+					1 +
+					(Math.sin(t * 0.003) * 0.15);
+
+				site.mesh.scale.set(
+
+					pulse,
+
+					pulse,
+
+					pulse
+				);
+			});
+
+			// =================================
+			// KHEIBAR SHEKAN FLIGHT
+			// =================================
+
+			if (
+				simTime >=
+				this.missileLaunchTime
+			){
+				this.kheibarMissile.visible = true
+
+				const elapsedMissileTime =
+					simTime -
+					this.missileLaunchTime;
+
+				let missileProgress =
+					elapsedMissileTime /
+					this.missileFlightDuration;
+
+				// clamp
+				missileProgress =
+					Math.min(
+						Math.max(
+							missileProgress,
+							0
+						),
+						1
+					);
+
+				// launch position
+				const launchVec =
+					this.latLonToVector3(
+
+						this.missileLaunchLat,
+
+						this.missileLaunchLon,
+
+						this.earthRadius +
+						0.01
+					);
+
+				// =================================
+				// TARGET CARRIER
+				// =================================
+
+				const targetCarrier = this.carriers[this.state.selectedCarrierIndex];
+
+				const targetVec =
+					this.latLonToVector3(
+
+						targetCarrier.lat,
+
+						targetCarrier.lon,
+
+						this.earthRadius + 0.01
+					);
+
+
+				// earth rotation
+				launchVec.applyAxisAngle(
+
+					new THREE.Vector3(0,1,0),
+
+					this.earth.rotation.y
+				);
+
+				targetVec.applyAxisAngle(
+
+					new THREE.Vector3(0,1,0),
+
+					this.earth.rotation.y
+				);
+
+				// interpolate
+				const missilePos =
+					new THREE.Vector3()
+					.lerpVectors(
+
+						launchVec,
+
+						targetVec,
+
+						missileProgress
+					);
+
+				// ballistic altitude arc
+				const arcHeight =
+					Math.sin(
+						Math.PI *
+						missileProgress
+					) * 0.25;
+
+				missilePos.normalize();
+
+				missilePos.multiplyScalar(
+
+					this.earthRadius +
+					0.01 +
+					arcHeight
+				);
+
+				// set missile position
+				this.kheibarMissile.position.copy(
+					missilePos
+				);
+
+				// orient missile
+				this.kheibarMissile.lookAt(
+					targetVec
+				);
+
+				// trail
+				this.missileTrailPoints.push(
+
+					missilePos.clone()
+				);
+
+				// limit trail size
+				if (
+					this.missileTrailPoints.length >
+					400
+				){
+
+					this.missileTrailPoints.shift();
+				}
+
+				this.missileTrailGeometry.setFromPoints(
+
+					this.missileTrailPoints
+				);
+			} else {
+				this.kheibarMissile.visible = false;
+			}
 
 			// =================================
 			// SATELLITES
@@ -1257,6 +2042,30 @@ export default class Earth extends Component {
 		}
 	}
 
+	// SELECT CARRIER
+	selectCarrier(index){
+		this.setState({
+			selectedCarrierIndex: index
+		});
+	}
+
+	// SELECT MISSILE
+	selectMissile(missile){
+
+		this.setState({
+
+			selectedMissile: missile
+		});
+
+		// OPTIONAL:
+		// update simulation speed/range
+
+		this.missileSpeedKmS =
+			parseFloat(
+				missile.speed
+			) || 3.5;
+	}
+
 	// =====================================================
 	// TIMELINE
 	// =====================================================
@@ -1379,7 +2188,6 @@ export default class Earth extends Component {
 							.selectedSatellite
 							.name
 						}
-
 					</div>
 
 					<div
@@ -1387,7 +2195,6 @@ export default class Earth extends Component {
 							styles.satSpec
 						}
 					>
-
 						<div>
 
 							<span>
@@ -1476,12 +2283,129 @@ export default class Earth extends Component {
 
 				</div>
 
+				{/* ================================= */}
+				{/* MISSILE INFO PANEL */}
+				{/* ================================= */}
+
+				<div className={styles.missileInfoPanel}>
+
+					<img
+
+						src={
+							this.state
+							.selectedMissile
+							.image
+						}
+
+						className={
+							styles.satImage
+						}
+					/>
+
+					<div
+						className={
+							styles.satName
+						}
+					>
+
+						{
+							this.state
+							.selectedMissile
+							.name
+						}
+
+					</div>
+
+					<div
+						className={
+							styles.satSpec
+						}
+					>
+
+						<div>
+
+							<span>Type:</span>
+
+							{
+								this.state
+								.selectedMissile
+								.type
+							}
+
+						</div>
+
+						<div>
+
+							<span>Speed:</span>
+
+							{
+								this.state
+								.selectedMissile
+								.speed
+							}
+
+						</div>
+
+						<div>
+
+							<span>Range:</span>
+
+							{
+								this.state
+								.selectedMissile
+								.range
+							}
+
+						</div>
+
+						<div>
+
+							<span>Guidance:</span>
+
+							{
+								this.state
+								.selectedMissile
+								.homing
+							}
+
+						</div>
+
+						<div>
+
+							<span>Warhead:</span>
+
+							{
+								this.state
+								.selectedMissile
+								.warhead
+							}
+
+						</div>
+
+						<div>
+
+							<span>Role:</span>
+
+							{
+								this.state
+								.selectedMissile
+								.role
+							}
+
+						</div>
+
+					</div>
+
+				</div>
+
 				<div
 
 					ref={this.simRef}
 
 					className={styles.satSim}
 				/>
+
+				{/*** SIMULATION CLOCK ***/}
 
 				<div
 					className={
@@ -1507,6 +2431,7 @@ export default class Earth extends Component {
 
 				</div>
 
+				{/*** TIMELINE SELECTION ***/}
 				<div
 					className={
 						styles.timelineContainer
@@ -1545,6 +2470,8 @@ export default class Earth extends Component {
 					/>
 
 				</div>
+
+				{/*** SATELLITE SELECTION ***/}
 
 				<div
 					className={
@@ -1603,7 +2530,60 @@ export default class Earth extends Component {
 
 					</div>
 
+					{
+						this.state.missiles.map((missile, index) => {
+							return (
+								<div
+
+									key={index}
+
+									className={styles.missileSelector}
+
+									onClick={() =>
+										this.selectMissile(missile)
+									}
+								>
+
+									{missile.name}
+
+								</div>
+							);
+						})
+					}
+
 				</div>
+
+
+				{/* ================================= */}
+				{/* CARRIER SELECTOR */}
+				{/* ================================= */}
+
+				<div className={styles.carrierControls}>
+					{
+						this.carriers &&
+						this.carriers.map((carrier, index) => (
+
+							<div
+
+								key={index}
+
+								className={styles.carrierSelector}
+
+								onClick={() =>
+									this.selectCarrier(index)
+								}
+							>
+
+								{carrier.name}
+
+							</div>
+						))
+					}
+				</div>
+
+				
+
+				
 
 			</div>
 		);

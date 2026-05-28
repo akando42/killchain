@@ -78,6 +78,19 @@ https://www.youtube.com/watch?v=6kR7ifQT-B4
 		sat.mesh.position.set(xFinal, yInclined, zFinal)
 	})
 ```
+[X] Toggle Among 3 Carriers On Click to display its Striking and Defensive circle
+
+[X] Toggle Among 5 Missile Options
+
+[ ] Missile Launch at Carrier After Satellite Detection Event 
+
+[ ] Simulate Ballistic Missile Range from Different Launch Sites
+
+==> Qiam-1 1.935 km/s 800 km No RADAR Homing
+==> Kheibar Shekan 3.5 km/s 1450 km No RADAR Homing
+==> Fattah 2 4.5 km/s 1500 km No RADAR Homing
+==> DF17 2.7 km/s 2100 km RADAR Homing
+==> DF21 2.1 km/s 1600 km RADAR Homing
 
 
 [ ] Build your satelite constellation to track US Carrier
