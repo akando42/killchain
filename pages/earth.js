@@ -165,10 +165,7 @@ export default class Earth extends Component {
 
 			selectedCarrierIndex: 0, 
 
-			detectionMessages: [
-				"USS Abraham Lincoln Lat: 21.888884087895217 Lon: 62.8574839512631",
-				"USS George Washington Lat: 14.176850031295444 Lon: 56.58082734000118"
-			]
+			detectionMessages: []
 		};
 
 		this.startEnvironment =
@@ -630,117 +627,6 @@ export default class Earth extends Component {
 
 		this.rebuildConstellation();
 
-		//
-		// USS ABRAHAM
-		//
-
-		// =====================================
-		// CARRIER
-		// =====================================
-
-		// this.carrierLat =
-		// 	21.888884087895217;
-
-		// this.carrierLon =
-		// 	62.8574839512631;
-
-		// this.carrier =
-		// 	new THREE.Mesh(
-
-		// 		new THREE.BoxGeometry(
-		// 			0.002,
-		// 			0.006,
-		// 			0.001
-		// 		),
-
-		// 		new THREE.MeshBasicMaterial({
-
-		// 			color: "orange"
-		// 		})
-		// 	);
-
-		// this.scene.add(
-		// 	this.carrier
-		// );
-
-		// // =====================================
-		// // STRIKE RANGE
-		// // =====================================
-
-		// const strikeRadiusKm = 2000;
-
-		// const strikeRadius =
-		// 	(strikeRadiusKm / 6371);
-
-		// this.carrierRing =
-		// 	new THREE.Mesh(
-
-		// 		new THREE.RingGeometry(
-
-		// 			strikeRadius,
-
-		// 			strikeRadius + 0.001,
-
-		// 			64
-		// 		),
-
-		// 		new THREE.MeshBasicMaterial({
-
-		// 			color: "yellow",
-
-		// 			side:
-		// 				THREE.DoubleSide,
-
-		// 			transparent: true,
-
-		// 			opacity: 0.6
-		// 		})
-		// 	);
-
-		// this.scene.add(
-		// 	this.carrierRing
-		// );
-
-		// // =====================================
-		// // DEFENSIVE INTERCEPTION RING
-		// // =====================================
-
-		// // Approximate SM-6 interception radius
-
-		// const defenseRadiusKm = 460;
-
-		// const defenseRadius =
-		// 	(defenseRadiusKm / 6371);
-
-		// this.defenseRing =
-		// 	new THREE.Mesh(
-
-		// 		new THREE.RingGeometry(
-
-		// 			defenseRadius,
-
-		// 			defenseRadius + 0.001,
-
-		// 			64
-		// 		),
-
-		// 		new THREE.MeshBasicMaterial({
-
-		// 			color: "red",
-
-		// 			side:
-		// 				THREE.DoubleSide,
-
-		// 			transparent: true,
-
-		// 			opacity: 0.55
-		// 		})
-		// 	);
-
-		// this.scene.add(
-		// 	this.defenseRing
-		// );
-
 		// =====================================
 		// MISSILE STRIKE RINGS
 		// =====================================
@@ -766,7 +652,7 @@ export default class Earth extends Component {
 			name = "Carrier",
 			lat = 0,
 			lon = 0,
-			color = "orange",
+			color = "blue",
 			strikeRadiusKm = 2000,
 			defenseRadiusKm = 460
 		}) => {
@@ -815,14 +701,14 @@ export default class Earth extends Component {
 
 					new THREE.MeshBasicMaterial({
 
-						color: "yellow",
+						color: "blue",
 
 						side:
 							THREE.DoubleSide,
 
 						transparent: true,
 
-						opacity: 0.35
+						opacity: 0.9
 					})
 				);
 
@@ -2229,7 +2115,7 @@ export default class Earth extends Component {
 				rangeKm:
 					this.missileRangeKm,
 
-				color: "blue"
+				color: "yellow"
 			});
 		});
 	}

@@ -56,7 +56,7 @@ https://www.youtube.com/watch?v=6kR7ifQT-B4
 ==> DF17 2.7 km/s 2100 km RADAR Homing
 ==> DF21 2.1 km/s 1600 km RADAR Homing
 
-[X] Simulate Satellite Detection Event When Satellite Coverage cover the Carrier coordinate, log the coordinate to console.log
+[X] Simulate Satellite Detection Event When Satellite Coverage cover the Carrier coordinate, log the coordinate to messaging panel
 
 [ ] Missile Launch at Carrier 15 mins after Satellite Detection Event
 
