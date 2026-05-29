@@ -794,7 +794,7 @@ export default class Earth extends Component {
 				62.8574839512631,
 
 			color:
-				"red"
+				"blue"
 		});
 
 		this.addCarrier({
@@ -807,7 +807,7 @@ export default class Earth extends Component {
 			lon: 56.58082734000118,
 
 			color:
-				"red"
+				"blue"
 		});
 
 		this.addCarrier({
@@ -822,23 +822,69 @@ export default class Earth extends Component {
 				33.360104839617364,
 
 			color:
-				"lime"
+				"blue"
 		});
+
 
 		// this.addCarrier({
 
 		// 	name:
-		// 		"Carrier Group Delta",
+		// 		"USS George W Bush",
 
 		// 	lat:
-		// 		14.5,
+		// 		32.67233737126122,  
 
 		// 	lon:
-		// 		72.0,
+		// 		33.360104839617364,
 
 		// 	color:
-		// 		"magenta"
+		// 		"blue"
 		// });
+
+		this.addCarrier({
+
+			name:
+				"Hatzor Airbase",
+
+			lat:
+				31.755060806220836,
+
+			lon:
+				34.73936932200511,
+
+			color:
+				"blue"
+		});
+
+		this.addCarrier({
+
+			name:
+				"Prince Sultan Airbase",
+
+			lat:
+				24.063115307933398,
+
+			lon:
+				47.562107925623636,
+
+			color:
+				"blue"
+		});
+
+		this.addCarrier({
+
+			name:
+				"Ben Gurion Airport",
+
+			lat:
+				32.00373050514364,
+
+			lon:
+				34.87273136033934,
+
+			color:
+				"blue"
+		});
 
 		// =====================================
 		// SIMULATED MISSILE CITIES

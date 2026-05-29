@@ -231,7 +231,7 @@
 .detectionMessages {
 	position: absolute;
 	right: 12vw;
-	top: 16vh;
+	top: 10vh;
 	width: 17vw;
 	min-height: 100px;
 	max-height: 66vh;
