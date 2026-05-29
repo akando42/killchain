@@ -227,3 +227,33 @@
 
 	z-index: 20;
 }
+
+.detectionMessages {
+	position: absolute;
+	right: 12vw;
+	top: 16vh;
+	width: 20vw;
+	min-height: 100px;
+	max-height: 60vh;
+	overflow: scroll;
+	display: flex;
+	flex-direction: column;
+	padding: 10px;
+	overflow-y: scroll;
+
+	/* Firefox */
+	scrollbar-width: none;
+
+	/* IE + Edge */
+	-ms-overflow-style: none;
+}
+
+.detectionMessages::-webkit-scrollbar {
+
+	display: none;
+}
+
+.detectionEvent {
+	color: red;
+	margin: 10px 0;
+}

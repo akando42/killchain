@@ -49,14 +49,15 @@ https://www.youtube.com/watch?v=6kR7ifQT-B4
 [X] Toggle Among 3 Carriers On Click to display its Striking and Defensive circle
 [X] Toggle Among 5 Missile Options
 
-[ ] Simulate Ballistic Missile Range from Different 2 Launch Sites via a Striking circle when select the missile option from right panel
+[X] Simulate Ballistic Missile Range from Different 2 Launch Sites via the Striking circle when select the missile option from right panel
 ==> Qiam-1 1.935 km/s 800 km No RADAR Homing
 ==> Kheibar Shekan 3.5 km/s 1450 km No RADAR Homing
 ==> Fattah 2 4.5 km/s 1500 km No RADAR Homing
 ==> DF17 2.7 km/s 2100 km RADAR Homing
 ==> DF21 2.1 km/s 1600 km RADAR Homing
 
-[ ] Simulate Satellite Detection Event with Striking Coordinate 
+[X] Simulate Satellite Detection Event When Satellite Coverage cover the Carrier coordinate, log the coordinate to console.log
+
 [ ] Missile Launch at Carrier 15 mins after Satellite Detection Event
 
 [ ] Calculate On Target Strike Probability Formula basing on 

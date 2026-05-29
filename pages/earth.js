@@ -163,7 +163,12 @@ export default class Earth extends Component {
 				}
 			],
 
-			selectedCarrierIndex: 0
+			selectedCarrierIndex: 0, 
+
+			detectionMessages: [
+				"USS Abraham Lincoln Lat: 21.888884087895217 Lon: 62.8574839512631",
+				"USS George Washington Lat: 14.176850031295444 Lon: 56.58082734000118"
+			]
 		};
 
 		this.startEnvironment =
@@ -187,6 +192,8 @@ export default class Earth extends Component {
 		this.selectCarrier = this.selectCarrier.bind(this);
 
 		this.selectMissile = this.selectMissile.bind(this);
+
+		this.updateTargetingData = this.updateTargetingData.bind(this);
 	}
 
 	// =====================================================
@@ -1761,6 +1768,60 @@ export default class Earth extends Component {
 
 					sat.footprint.material.opacity =
 						0.25;
+
+					// =====================================
+					// CARRIER DETECTION
+					// =====================================
+
+					this.carriers.forEach((carrier) => {
+
+						// carrier ground position
+						const carrierGroundPos =
+							this.latLonToVector3(
+
+								carrier.lat,
+								carrier.lon,
+
+								this.earthRadius +
+								0.001
+							);
+
+						carrierGroundPos.applyAxisAngle(
+
+							new THREE.Vector3(0,1,0),
+
+							this.earth.rotation.y
+						);
+
+						// distance between sat footprint and carrier
+						const dist =
+							groundPos.distanceTo(
+								carrierGroundPos
+							);
+
+						// detection threshold
+						// adjust this value
+						const detectionRadius = 0.08;
+
+						if (dist < detectionRadius){
+							const gmtTime =
+								new Date(simTime)
+								.toUTCString();
+
+							let message = `
+								${gmtTime}
+								${carrier.name} [DETECTED] 
+								Lat ${carrier.lat}
+								Lon ${carrier.lon}
+									`;
+
+							console.log(message);
+
+							this.updateTargetingData(
+								message
+							);
+						}
+					});
 				}
 			});
 
@@ -2274,6 +2335,17 @@ export default class Earth extends Component {
 		});
 	}
 
+
+	// =====================================================
+	// UPDATE TARGETING DATA
+	// =====================================================
+	updateTargetingData(message){
+		this.setState({
+			detectionMessages: [message, ...this.state.detectionMessages]
+		})
+	}
+
+
 	// =====================================================
 	// LIFECYCLE
 	// =====================================================
@@ -2732,6 +2804,20 @@ export default class Earth extends Component {
 
 							</div>
 						))
+					}
+				</div>
+
+
+
+				<div className={styles.detectionMessages}>
+					{
+						this.state.detectionMessages.map(message => {
+							return (
+								<div className={styles.detectionEvent}>
+									{message}
+								</div>
+							)
+						})
 					}
 				</div>
 
