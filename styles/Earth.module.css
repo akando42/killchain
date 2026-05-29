@@ -232,7 +232,7 @@
 	position: absolute;
 	right: 12vw;
 	top: 16vh;
-	width: 20vw;
+	width: 17vw;
 	min-height: 100px;
 	max-height: 66vh;
 	overflow: scroll;
@@ -246,6 +246,7 @@
 
 	/* IE + Edge */
 	-ms-overflow-style: none;
+	background-color: rgba(1,1,1,0.6);
 }
 
 .detectionMessages::-webkit-scrollbar {
