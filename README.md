@@ -58,12 +58,16 @@ https://www.youtube.com/watch?v=6kR7ifQT-B4
 
 [X] Simulate Satellite Detection Event When Satellite Coverage cover the Carrier coordinate, log the coordinate to messaging panel
 
-[ ] Add 3 Critical Airbases 
+[X] Add 3 Critical Airbases 
 Prince Sultan Airbase 24.063115307933398, 47.562107925623636
 Hatzor Airbase 31.755060806220836, 34.73936932200511
 Ben Gurion Airport 32.00373050514364, 34.87273136033934
 
 [ ] Missile Launch at Carriers and Airbases 15 mins after Satellite Detection Event
+
+[ ] Recommend Missiles basing on Target Detection
+
+[ ] Randomize Carrier Position Within 30 mins radius of max speed
 
 [ ] Calculate On Target Strike Probability Formula basing on 
 Missile Speed, Range, Carrier Distance and Homing Techniques
