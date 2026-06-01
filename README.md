@@ -63,7 +63,7 @@ Prince Sultan Airbase 24.063115307933398, 47.562107925623636
 Hatzor Airbase 31.755060806220836, 34.73936932200511
 Ben Gurion Airport 32.00373050514364, 34.87273136033934
 
-[ ] Update Sun Position matching GMT timestamp with GMT 0 at Mid Night in Greenwich
+[X] Update Sun Position matching GMT timestamp with GMT 0 at Mid Night in Greenwich
 
 [ ] Missile Launch at Carriers and Airbases 15 mins after Satellite Detection Event
 

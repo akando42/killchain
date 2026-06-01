@@ -258,3 +258,50 @@
 	color: red;
 	margin: 10px 0;
 }
+
+/* ======================================== */
+/* 4K TV OPTIMIZATION */
+/* ======================================== */
+
+@media screen and (min-width: 2560px) {
+
+	.overlayInfo {
+		font-size: 36px;
+	}
+
+	.satSelector,
+	.missileSelector,
+	.carrierSelector {
+
+		min-width: 300px;
+		min-height: 75px;
+
+		font-size: 24px;
+	}
+
+	.satInfoPanel,
+	.missileInfoPanel {
+
+		width: 420px;
+	}
+
+	.satName {
+
+		font-size: 36px;
+	}
+
+	.satSpec {
+
+		font-size: 20px;
+	}
+
+	.detectionMessages {
+
+		width: 450px;
+	}
+
+	.detectionEvent {
+
+		font-size: 18px;
+	}
+}
