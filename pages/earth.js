@@ -541,15 +541,22 @@ export default class Earth extends Component {
 		// LIGHTING
 		// =====================================
 
-		const sun =
-			new THREE.DirectionalLight(
-				0xffffff,
-				8
-			);
+		// const sun =
+		// 	new THREE.DirectionalLight(
+		// 		0xffffff,
+		// 		8
+		// 	);
 
-		sun.position.set(5, 3, 5);
+		// sun.position.set(5, 3, 5);
 
-		this.scene.add(sun);
+		// this.scene.add(sun);
+
+		this.sun = new THREE.DirectionalLight(
+			0xffffff,
+			8
+		);
+
+		this.scene.add(this.sun);
 
 		const ambient =
 			new THREE.AmbientLight(
@@ -1139,8 +1146,39 @@ export default class Earth extends Component {
 					simulatedMs;
 			}
 
-			const simDate =
-				new Date(simTime);
+			const simDate = new Date(simTime);
+
+			// =================================
+			// REAL SUN POSITION FROM UTC
+			// =================================
+
+			// const utcHours =
+			// 	simDate.getUTCHours() +
+			// 	(simDate.getUTCMinutes() / 60) +
+			// 	(simDate.getUTCSeconds() / 3600);
+
+			// // Greenwich noon = Sun longitude 0°
+			// const sunLonDeg =
+			// 	(utcHours - 12) * 15;
+
+			// const sunLonRad =
+			// 	sunLonDeg * Math.PI / 180;
+
+			// // Sun direction in ECI-like frame
+			// const sunDistance = 10;
+
+			// this.sun.position.set(
+			// 	Math.cos(sunLonRad) * sunDistance,
+			// 	0,
+			// 	Math.sin(sunLonRad) * sunDistance
+			// );
+
+			// Sun fixed along +X
+			this.sun.position.set(
+			    10,
+			    0,
+			    0
+			);
 
 			const progress =
 				(
@@ -1168,8 +1206,12 @@ export default class Earth extends Component {
 			// EARTH ROTATION
 			// =================================
 
-			this.earth.rotation.y =
-				this.earthAngularVelocity * t;
+			// this.earth.rotation.y = this.earthAngularVelocity * t;
+
+			const greenwichOffset = THREE.MathUtils.degToRad(180);
+			this.earth.rotation.y = greenwichOffset + this.earthAngularVelocity * t;
+			
+			// this.earth.rotation.y  = 0
 
 			// =================================
 			// GEO SUPPORT

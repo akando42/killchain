@@ -223,7 +223,9 @@ export default class Main extends Component {
 				1.5
 			);
 
-		sun.position.set(5, 3, 5);
+		// sun.position.set(5, 3, 5);
+
+		sun.position.set(0, 0, 0);
 
 		this.scene.add(sun);
 
