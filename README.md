@@ -65,12 +65,11 @@ Ben Gurion Airport 32.00373050514364, 34.87273136033934
 
 [X] Update Sun Position matching GMT timestamp with GMT 0 at Mid Night in Greenwich
 
-[ ] Add to Detections List for Launching Missile
+[X] Add to Detections List for Launching Missile if 
 Current Time and Detection time is within 15 mins
 Range from Target to Missile City is smaller than Missile Range
-Select cheapest value missile option
 
-[ ] Recommend Missiles basing on Target Detection
+[X] Recommend launch Missile after 2 detections of the same target
 
 [ ] Missile Launch at Carriers and Airbases 15 mins after Satellite Detection Event
 

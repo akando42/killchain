@@ -307,6 +307,12 @@
 	padding: 3px;
 }
 
+.targetingData {
+	margin: 3px;
+	padding: 3px;
+	background-color: blue;
+}
+
 /* ======================================== */
 /* 4K TV OPTIMIZATION */
 /* ======================================== */

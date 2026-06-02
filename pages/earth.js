@@ -454,6 +454,7 @@ export default class Earth extends Component {
 	// =====================================================
 
 	async startEnvironment(){
+		this.targetTracks = {};
 
 		const mount =
 			this.simRef.current;
@@ -1162,6 +1163,7 @@ export default class Earth extends Component {
 			}
 
 			const simDate = new Date(simTime);
+			this.currentSimTime = simTime;
 
 			// =================================
 			// REAL SUN POSITION FROM UTC
@@ -2333,35 +2335,184 @@ export default class Earth extends Component {
 	// =====================================================
 	// UPDATE TARGETING DATA
 	// =====================================================
-	updateTargetingData(message, gmtTime, carrierName, carrierLat, carrierLon){
+	updateTargetingData(
+		message,
+		gmtTime,
+		carrierName,
+		carrierLat,
+		carrierLon
+	){
 
-		let carrierType
-		let recommendedMissiles
+		let carrierType;
+		let recommendedMissiles;
 
-		if (this.state.aircraftCarriers.includes(carrierName)){
-			carrierType = "AIRCRAFT CARRIER"
-			recommendedMissiles = ['DF17','DF21']
-		} else {
-			carrierType = "AIRBASE"
-			recommendedMissiles = ['Qiam-1','Kheibar Shekan', 'Fattah2']
+		if (
+			this.state.aircraftCarriers.includes(
+				carrierName
+			)
+		){
+
+			carrierType =
+				"AIRCRAFT CARRIER";
+
+			recommendedMissiles =
+				["DF17","DF21"];
+
+		}else{
+
+			carrierType =
+				"AIRBASE";
+
+			recommendedMissiles =
+				[
+					"Qiam-1",
+					"Kheibar Shekan",
+					"Fattah2"
+				];
+		}
+
+		const detectionTimestamp =
+			new Date(gmtTime).getTime();
+
+		// nearest missile city
+		let nearestDistanceKm =
+			Number.MAX_VALUE;
+
+		let launchSite = null;
+
+		this.missileCities.forEach(site => {
+
+			const dist =
+				this.calculateDistanceKm(
+
+					site.lat,
+					site.lon,
+
+					carrierLat,
+					carrierLon
+				);
+
+			if (dist < nearestDistanceKm){
+
+				nearestDistanceKm =
+					dist;
+
+				launchSite =
+					site;
+			}
+		});
+
+		if (!this.targetTracks[carrierName]){
+
+			this.targetTracks[carrierName] = {
+
+				count: 0,
+
+				lastDetection: 0,
+
+				confirmed: false
+			};
+		}
+
+		const track =
+			this.targetTracks[carrierName];
+
+		// ignore duplicate detections
+		// within 5 simulated minutes
+
+		if (
+			detectionTimestamp -
+			track.lastDetection <
+			(5 * 60 * 1000)
+		){
+			return;
+		}
+
+		track.count += 1;
+
+		track.lastDetection =
+			detectionTimestamp;
+
+		if (track.count >= 2){
+
+			track.confirmed = true;
 		}
 
 		this.setState({
-			detectionMessages: [message, ...this.state.detectionMessages],
+
+			detectionMessages: [
+				message,
+				...this.state.detectionMessages
+			],
+
 			detections: [
 				{
-					carrierName: carrierName,
-					carrierType: carrierType,
-					carrierLat: carrierLat, 
-					carrierLon: carrierLon, 
+					carrierName,
+					carrierType,
+
+					carrierLat,
+					carrierLon,
+
 					detectionTime: gmtTime,
-					recommendedMissiles: recommendedMissiles
-				}, 
+
+					detectionTimestamp,
+
+					recommendedMissiles,
+
+					confirmed:
+						track.confirmed,
+
+					detectionCount:
+						track.count,
+
+					distanceKm:
+						Math.round(
+							nearestDistanceKm
+						),
+
+					launchSiteLat:
+						launchSite?.lat,
+
+					launchSiteLon:
+						launchSite?.lon
+				},
+
 				...this.state.detections
 			]
-		})
+		});
 	}
 
+	calculateDistanceKm(lat1, lon1, lat2, lon2){
+
+		const R = 6371;
+
+		const dLat =
+			(lat2 - lat1) *
+			Math.PI / 180;
+
+		const dLon =
+			(lon2 - lon1) *
+			Math.PI / 180;
+
+		const a =
+			Math.sin(dLat / 2) *
+			Math.sin(dLat / 2) +
+
+			Math.cos(lat1 * Math.PI / 180) *
+			Math.cos(lat2 * Math.PI / 180) *
+
+			Math.sin(dLon / 2) *
+			Math.sin(dLon / 2);
+
+		const c =
+			2 *
+			Math.atan2(
+				Math.sqrt(a),
+				Math.sqrt(1 - a)
+			);
+
+		return R * c;
+	}
 
 	// =====================================================
 	// LIFECYCLE
@@ -2543,31 +2694,62 @@ export default class Earth extends Component {
 
 				<div className={styles.missileRecommendation}>
 					{
-						this.state.detections.map(detection => {
-							return (
-								<div className={styles.recommendationEvent}>
-									TARGET <span>{detection.carrierName}</span> with 
-									{
-										detection.recommendedMissiles.map(missile => {
-											return (
-												<span 
-													className={styles.missileSelection}
-												> 
-													{missile} 
-												</span>
-											)
-										})
-									} 
-									at coordinate 
-									<div className={styles.coordinateSelection}>
-										{detection.carrierLat}
+						this.state.detections.filter(
+							detection => {
+
+								if (!detection.confirmed){
+									return false;
+								}
+
+								if (!this.currentSimTime){
+									return false;
+								}
+
+								const ageMinutes =
+									(
+										this.currentSimTime -
+										detection.detectionTimestamp
+									) / 60000;
+
+								if (ageMinutes > 15){
+									return false;
+								}
+
+								const missileRange =
+									parseFloat(
+										this.state.selectedMissile.range
+									);
+
+								return (
+									detection.distanceKm <=
+									missileRange
+								);
+							})
+							.map(detection => {
+								return (
+									<div className={styles.recommendationEvent}>
+										TARGET <span>{detection.carrierName}</span> at distance <span className={styles.coordinateSelection}>{detection.distanceKm} km</span> with 
+										{
+											detection.recommendedMissiles.map(missile => {
+												return (
+													<span 
+														className={styles.missileSelection}
+													> 
+														{missile} 
+													</span>
+												)
+											})
+										} 
+										at coordinate 
+										<div className={styles.coordinateSelection}>
+											{detection.carrierLat}
+										</div>
+										<div className={styles.coordinateSelection}>
+											{detection.carrierLon}
+										</div>
 									</div>
-									<div className={styles.coordinateSelection}>
-										{detection.carrierLon}
-									</div>
-								</div>
-							)
-						})
+								)
+							})
 					}
 				</div>
 
