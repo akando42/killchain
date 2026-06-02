@@ -276,7 +276,7 @@
 	top: 10vh;
 	left: 16vw;
 	width: 16vw;
-	min-height:100px;
+	/*min-height:100px;*/
 	max-height: 66vh;
 	padding: 10px;
 	color: white;

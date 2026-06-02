@@ -455,6 +455,7 @@ export default class Earth extends Component {
 
 	async startEnvironment(){
 		this.targetTracks = {};
+		this.timeScale = 60; // real-time
 
 		const mount =
 			this.simRef.current;
@@ -1151,11 +1152,16 @@ export default class Earth extends Component {
 					(Date.now() -
 					this.startTime) / 1000;
 
+				// const simulatedMs =
+				// 	elapsedRealSeconds *
+				// 	this.simMinutesPerSecond *
+				// 	60 *
+				// 	1000;
+
 				const simulatedMs =
-					elapsedRealSeconds *
-					this.simMinutesPerSecond *
-					60 *
-					1000;
+    				elapsedRealSeconds *
+    				this.timeScale *
+    				1000;
 
 				simTime =
 					this.currentSimBaseTime +

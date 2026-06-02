@@ -71,9 +71,9 @@ Range from Target to Missile City is smaller than Missile Range
 
 [X] Recommend launch Missile after 2 detections of the same target
 
-[ ] Missile Launch at Carriers and Airbases 15 mins after Satellite Detection Event
+[ ] Missile Launch at Carriers and Airbases detection coordinate 15 mins after Targeting
 
-[ ] Randomize Carrier Position Within 30 mins radius of max speed
+[ ] Randomize Carrier Position Within 30 mins radius of max speed every 30 mins
 
 [ ] Calculate On Target Strike Probability Formula basing on 
 Missile Speed, Range, Carrier Distance and Homing Techniques
