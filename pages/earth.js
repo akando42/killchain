@@ -165,7 +165,22 @@ export default class Earth extends Component {
 
 			selectedCarrierIndex: 0, 
 
-			detectionMessages: []
+			detectionMessages: [],
+			detections: [],
+
+			airbases: [
+				'Hatzor Airbase',
+				'Prince Sultan Airbase',
+				'Ben Gurion Airport',
+				'Tel Noq Airbase',
+				'Nevatim Airbase'
+			], 
+
+			aircraftCarriers: [
+				'USS Abraham Lincoln',
+				'USS George Washington',
+				'USS George W Bush'
+			]
 		};
 
 		this.startEnvironment =
@@ -1783,8 +1798,9 @@ export default class Earth extends Component {
 								.toUTCString();
 
 							let message = `
+								[DETECTED] 
+								${carrier.name} 
 								${gmtTime}
-								${carrier.name} [DETECTED] 
 								Lat ${carrier.lat}
 								Lon ${carrier.lon}
 									`;
@@ -1792,7 +1808,11 @@ export default class Earth extends Component {
 							console.log(message);
 
 							this.updateTargetingData(
-								message
+								message,
+								gmtTime, 
+								carrier.name,
+								carrier.lat, 
+								carrier.lon
 							);
 						}
 					});
@@ -2313,9 +2333,32 @@ export default class Earth extends Component {
 	// =====================================================
 	// UPDATE TARGETING DATA
 	// =====================================================
-	updateTargetingData(message){
+	updateTargetingData(message, gmtTime, carrierName, carrierLat, carrierLon){
+
+		let carrierType
+		let recommendedMissiles
+
+		if (this.state.aircraftCarriers.includes(carrierName)){
+			carrierType = "AIRCRAFT CARRIER"
+			recommendedMissiles = ['DF17','DF21']
+		} else {
+			carrierType = "AIRBASE"
+			recommendedMissiles = ['Qiam-1','Kheibar Shekan', 'Fattah2']
+		}
+
 		this.setState({
-			detectionMessages: [message, ...this.state.detectionMessages]
+			detectionMessages: [message, ...this.state.detectionMessages],
+			detections: [
+				{
+					carrierName: carrierName,
+					carrierType: carrierType,
+					carrierLat: carrierLat, 
+					carrierLon: carrierLon, 
+					detectionTime: gmtTime,
+					recommendedMissiles: recommendedMissiles
+				}, 
+				...this.state.detections
+			]
 		})
 	}
 
@@ -2357,6 +2400,248 @@ export default class Earth extends Component {
 		return (
 
 			<div className={styles.container}>
+
+				{/* ================================= */}
+				{/* MISSILE SELECTION PANEL 		  */}
+				{/* ================================= */}
+				
+				<div className={styles.missileSelectionPanel}>
+					{
+						this.state.missiles.map((missile, index) => {
+							return (
+								<div
+
+									key={index}
+
+									className={styles.missileSelector}
+
+									onClick={() =>
+										this.selectMissile(missile)
+									}
+								>
+
+									{missile.name}
+
+								</div>
+							);
+						})
+					}
+				</div>
+
+				{/* ================================= */}
+				{/* MISSILE INFO PANEL */}
+				{/* ================================= */}
+
+				<div className={styles.missileInfoPanel}>
+					<img
+
+						src={
+							this.state
+							.selectedMissile
+							.image
+						}
+
+						className={
+							styles.satImage
+						}
+					/>
+
+					<div
+						className={
+							styles.satName
+						}
+					>
+
+						{
+							this.state
+							.selectedMissile
+							.name
+						}
+
+					</div>
+
+					<div
+						className={
+							styles.satSpec
+						}
+					>
+
+						<div>
+
+							<span>Type:</span>
+
+							{
+								this.state
+								.selectedMissile
+								.type
+							}
+
+						</div>
+
+						<div>
+
+							<span>Speed:</span>
+
+							{
+								this.state
+								.selectedMissile
+								.speed
+							}
+
+						</div>
+
+						<div>
+
+							<span>Range:</span>
+
+							{
+								this.state
+								.selectedMissile
+								.range
+							}
+
+						</div>
+
+						<div>
+
+							<span>Guidance:</span>
+
+							{
+								this.state
+								.selectedMissile
+								.homing
+							}
+
+						</div>
+
+						<div>
+
+							<span>Warhead:</span>
+
+							{
+								this.state
+								.selectedMissile
+								.warhead
+							}
+
+						</div>
+
+						<div>
+
+							<span>Role:</span>
+
+							{
+								this.state
+								.selectedMissile
+								.role
+							}
+
+						</div>
+
+					</div>
+				</div>
+
+				<div className={styles.missileRecommendation}>
+					{
+						this.state.detections.map(detection => {
+							return (
+								<div className={styles.recommendationEvent}>
+									TARGET <span>{detection.carrierName}</span> with 
+									{
+										detection.recommendedMissiles.map(missile => {
+											return (
+												<span 
+													className={styles.missileSelection}
+												> 
+													{missile} 
+												</span>
+											)
+										})
+									} 
+									at coordinate 
+									<div className={styles.coordinateSelection}>
+										{detection.carrierLat}
+									</div>
+									<div className={styles.coordinateSelection}>
+										{detection.carrierLon}
+									</div>
+								</div>
+							)
+						})
+					}
+				</div>
+
+				<div
+
+					ref={this.simRef}
+
+					className={styles.satSim}
+				/>
+
+				{/*** SIMULATION CLOCK ***/}
+
+				<div
+					className={
+						styles.overlayInfo
+					}
+				>
+
+					<div
+						className={
+							styles.title
+						}
+					>
+
+						<div>
+							Iranian War March 2026
+						</div>
+
+						<div>
+							{this.state.timeT}
+						</div>
+
+					</div>
+
+				</div>
+
+				{/*** TIMELINE SELECTION ***/}
+				<div
+					className={
+						styles.timelineContainer
+					}
+				>
+
+					<input
+
+						type="range"
+
+						min="0"
+
+						max="1"
+
+						step="0.0001"
+
+						value={
+							this.state.simProgress
+						}
+
+						onChange={
+							this.updateTimeline
+						}
+
+						onMouseDown={
+							this.startTimelineDrag
+						}
+
+						onMouseUp={
+							this.endTimelineDrag
+						}
+
+						className={
+							styles.timelineSlider
+						}
+					/>
+				</div>
 
 				{/* ================================= */}
 				{/* SAT INFO PANEL */}
@@ -2480,195 +2765,6 @@ export default class Earth extends Component {
 						</div>
 
 					</div>
-
-				</div>
-
-				{/* ================================= */}
-				{/* MISSILE INFO PANEL */}
-				{/* ================================= */}
-
-				<div className={styles.missileInfoPanel}>
-
-					<img
-
-						src={
-							this.state
-							.selectedMissile
-							.image
-						}
-
-						className={
-							styles.satImage
-						}
-					/>
-
-					<div
-						className={
-							styles.satName
-						}
-					>
-
-						{
-							this.state
-							.selectedMissile
-							.name
-						}
-
-					</div>
-
-					<div
-						className={
-							styles.satSpec
-						}
-					>
-
-						<div>
-
-							<span>Type:</span>
-
-							{
-								this.state
-								.selectedMissile
-								.type
-							}
-
-						</div>
-
-						<div>
-
-							<span>Speed:</span>
-
-							{
-								this.state
-								.selectedMissile
-								.speed
-							}
-
-						</div>
-
-						<div>
-
-							<span>Range:</span>
-
-							{
-								this.state
-								.selectedMissile
-								.range
-							}
-
-						</div>
-
-						<div>
-
-							<span>Guidance:</span>
-
-							{
-								this.state
-								.selectedMissile
-								.homing
-							}
-
-						</div>
-
-						<div>
-
-							<span>Warhead:</span>
-
-							{
-								this.state
-								.selectedMissile
-								.warhead
-							}
-
-						</div>
-
-						<div>
-
-							<span>Role:</span>
-
-							{
-								this.state
-								.selectedMissile
-								.role
-							}
-
-						</div>
-
-					</div>
-
-				</div>
-
-				<div
-
-					ref={this.simRef}
-
-					className={styles.satSim}
-				/>
-
-				{/*** SIMULATION CLOCK ***/}
-
-				<div
-					className={
-						styles.overlayInfo
-					}
-				>
-
-					<div
-						className={
-							styles.title
-						}
-					>
-
-						<div>
-							Iranian War March 2026
-						</div>
-
-						<div>
-							{this.state.timeT}
-						</div>
-
-					</div>
-
-				</div>
-
-				{/*** TIMELINE SELECTION ***/}
-				<div
-					className={
-						styles.timelineContainer
-					}
-				>
-
-					<input
-
-						type="range"
-
-						min="0"
-
-						max="1"
-
-						step="0.0001"
-
-						value={
-							this.state.simProgress
-						}
-
-						onChange={
-							this.updateTimeline
-						}
-
-						onMouseDown={
-							this.startTimelineDrag
-						}
-
-						onMouseUp={
-							this.endTimelineDrag
-						}
-
-						className={
-							styles.timelineSlider
-						}
-					/>
-
 				</div>
 
 				{/*** SATELLITE SELECTION ***/}
@@ -2730,29 +2826,19 @@ export default class Earth extends Component {
 
 					</div>
 
-					{
-						this.state.missiles.map((missile, index) => {
-							return (
-								<div
-
-									key={index}
-
-									className={styles.missileSelector}
-
-									onClick={() =>
-										this.selectMissile(missile)
-									}
-								>
-
-									{missile.name}
-
-								</div>
-							);
-						})
-					}
-
 				</div>
 
+				<div className={styles.detectionMessages}>
+					{
+						this.state.detectionMessages.map(message => {
+							return (
+								<div className={styles.detectionEvent}>
+									{message}
+								</div>
+							)
+						})
+					}
+				</div>
 
 				{/* ================================= */}
 				{/* CARRIER SELECTOR */}
@@ -2780,24 +2866,6 @@ export default class Earth extends Component {
 						))
 					}
 				</div>
-
-
-
-				<div className={styles.detectionMessages}>
-					{
-						this.state.detectionMessages.map(message => {
-							return (
-								<div className={styles.detectionEvent}>
-									{message}
-								</div>
-							)
-						})
-					}
-				</div>
-
-				
-
-				
 
 			</div>
 		);
