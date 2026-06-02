@@ -12,7 +12,6 @@ import styles from "../styles/Earth.module.css";
 export default class Earth extends Component {
 
 	constructor(props){
-
 		super(props);
 
 		this.simRef = createRef();
@@ -183,23 +182,17 @@ export default class Earth extends Component {
 			]
 		};
 
-		this.startEnvironment =
-			this.startEnvironment.bind(this);
+		this.startEnvironment = this.startEnvironment.bind(this);
 
-		this.addPlane =
-			this.addPlane.bind(this);
+		this.addPlane = this.addPlane.bind(this);
 
-		this.selectSat =
-			this.selectSat.bind(this);
+		this.selectSat = this.selectSat.bind(this);
 
-		this.updateTimeline =
-			this.updateTimeline.bind(this);
+		this.updateTimeline = this.updateTimeline.bind(this);
 
-		this.startTimelineDrag =
-			this.startTimelineDrag.bind(this);
+		this.startTimelineDrag = this.startTimelineDrag.bind(this);
 
-		this.endTimelineDrag =
-			this.endTimelineDrag.bind(this);
+		this.endTimelineDrag = this.endTimelineDrag.bind(this);
 
 		this.selectCarrier = this.selectCarrier.bind(this);
 
@@ -458,26 +451,17 @@ export default class Earth extends Component {
 		this.timeScale = 60; // real-time
 		this.activeMissiles = [];
 
-		const mount =
-			this.simRef.current;
+		const mount = this.simRef.current;
 
 		// =====================================
 		// SIMULATION WINDOW
 		// =====================================
 
-		this.warStart =
-			new Date(
-				"2026-03-01T00:00:00Z"
-			);
+		this.warStart = new Date("2026-03-01T00:00:00Z");
 
-		this.warEnd =
-			new Date(
-				"2026-03-02T00:00:00Z"
-			);
+		this.warEnd = new Date("2026-03-02T00:00:00Z");
 
-		this.totalWarDuration =
-			this.warEnd.getTime() -
-			this.warStart.getTime();
+		this.totalWarDuration = this.warEnd.getTime() - this.warStart.getTime();
 
 		// =====================================
 		// TIME SCALE
@@ -489,31 +473,17 @@ export default class Earth extends Component {
 		// SCENE
 		// =====================================
 
-		this.scene =
-			new THREE.Scene();
+		this.scene = new THREE.Scene();
 
 		// =====================================
 		// CAMERA
 		// =====================================
 
-		this.camera =
-			new THREE.PerspectiveCamera(
-
-				60,
-
-				mount.clientWidth /
-				mount.clientHeight,
-
-				0.1,
-
-				1000
-			);
-
-		this.camera.position.set(
-			0,
-			1.5,
-			3
+		this.camera = new THREE.PerspectiveCamera(
+			60, mount.clientWidth/mount.clientHeight, 0.1, 1000
 		);
+
+		this.camera.position.set(0, 1.5, 3);
 
 		// =====================================
 		// RENDERER
@@ -922,8 +892,7 @@ export default class Earth extends Component {
 		// =====================================
 
 		// 33°30'04.70"N
-		const missileLat =
-			this.dmsToDecimal(
+		const missileLat = this.dmsToDecimal(
 				27,
 				38,
 				15.0,
@@ -931,8 +900,7 @@ export default class Earth extends Component {
 			);
 
 		// 48°17'01.26"E
-		const missileLon =
-			this.dmsToDecimal(
+		const missileLon = this.dmsToDecimal(
 				54,
 				15,
 				20.9,
@@ -958,6 +926,8 @@ export default class Earth extends Component {
 				lon: missileLon2
 			}
 		];
+
+		console.log("MISSILE CITIES ", missileSites)
 
 		// =====================================
 		// CREATE TRIANGLES
@@ -1145,8 +1115,7 @@ export default class Earth extends Component {
 			){
 
 				simTime =
-					this.manualSimTime;
-
+					this.manualSimTime;			
 			} else {
 
 				const elapsedRealSeconds =
@@ -1947,7 +1916,7 @@ export default class Earth extends Component {
 								Lon ${carrier.lon}
 									`;
 
-							console.log(message);
+							// console.log(message);
 
 							this.updateTargetingData(
 								message,
