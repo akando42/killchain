@@ -456,6 +456,7 @@ export default class Earth extends Component {
 	async startEnvironment(){
 		this.targetTracks = {};
 		this.timeScale = 60; // real-time
+		this.activeMissiles = [];
 
 		const mount =
 			this.simRef.current;
@@ -1425,75 +1426,209 @@ export default class Earth extends Component {
 			// KHEIBAR SHEKAN FLIGHT
 			// =================================
 
-			if (
-				simTime >=
-				this.missileLaunchTime
-			){
-				this.kheibarMissile.visible = true
+			// if (
+			// 	simTime >=
+			// 	this.missileLaunchTime
+			// ){
+			// 	this.kheibarMissile.visible = true
 
-				const elapsedMissileTime =
+			// 	const elapsedMissileTime =
+			// 		simTime -
+			// 		this.missileLaunchTime;
+
+			// 	let missileProgress =
+			// 		elapsedMissileTime /
+			// 		this.missileFlightDuration;
+
+			// 	// clamp
+			// 	missileProgress =
+			// 		Math.min(
+			// 			Math.max(
+			// 				missileProgress,
+			// 				0
+			// 			),
+			// 			1
+			// 		);
+
+			// 	// launch position
+			// 	const launchVec =
+			// 		this.latLonToVector3(
+
+			// 			this.missileLaunchLat,
+
+			// 			this.missileLaunchLon,
+
+			// 			this.earthRadius +
+			// 			0.01
+			// 		);
+
+			// 	// =================================
+			// 	// TARGET CARRIER
+			// 	// =================================
+
+			// 	const targetCarrier = this.carriers[this.state.selectedCarrierIndex];
+
+			// 	const targetVec =
+			// 		this.latLonToVector3(
+
+			// 			targetCarrier.lat,
+
+			// 			targetCarrier.lon,
+
+			// 			this.earthRadius + 0.01
+			// 		);
+
+
+			// 	// earth rotation
+			// 	launchVec.applyAxisAngle(
+
+			// 		new THREE.Vector3(0,1,0),
+
+			// 		this.earth.rotation.y
+			// 	);
+
+			// 	targetVec.applyAxisAngle(
+
+			// 		new THREE.Vector3(0,1,0),
+
+			// 		this.earth.rotation.y
+			// 	);
+
+			// 	// interpolate
+			// 	const missilePos =
+			// 		new THREE.Vector3()
+			// 		.lerpVectors(
+
+			// 			launchVec,
+
+			// 			targetVec,
+
+			// 			missileProgress
+			// 		);
+
+			// 	// ballistic altitude arc
+			// 	const arcHeight =
+			// 		Math.sin(
+			// 			Math.PI *
+			// 			missileProgress
+			// 		) * 0.25;
+
+			// 	missilePos.normalize();
+
+			// 	missilePos.multiplyScalar(
+
+			// 		this.earthRadius +
+			// 		0.01 +
+			// 		arcHeight
+			// 	);
+
+			// 	// set missile position
+			// 	this.kheibarMissile.position.copy(
+			// 		missilePos
+			// 	);
+
+			// 	// orient missile
+			// 	this.kheibarMissile.lookAt(
+			// 		targetVec
+			// 	);
+
+			// 	// trail
+			// 	this.missileTrailPoints.push(
+
+			// 		missilePos.clone()
+			// 	);
+
+			// 	// limit trail size
+			// 	if (
+			// 		this.missileTrailPoints.length >
+			// 		400
+			// 	){
+
+			// 		this.missileTrailPoints.shift();
+			// 	}
+
+			// 	this.missileTrailGeometry.setFromPoints(
+
+			// 		this.missileTrailPoints
+			// 	);
+			// } else {
+			// 	this.kheibarMissile.visible = false;
+			// }
+
+			// KHEIBAR SHEKAN FLIGHT
+
+			this.activeMissiles.forEach((missile) => {
+
+				if (
+					simTime <
+					missile.launchTime
+				){
+					return;
+				}
+
+				missile.mesh.visible = true;
+
+				const elapsed =
 					simTime -
-					this.missileLaunchTime;
+					missile.launchTime;
 
-				let missileProgress =
-					elapsedMissileTime /
-					this.missileFlightDuration;
+				let progress =
+					elapsed /
+					missile.flightDuration;
 
-				// clamp
-				missileProgress =
+				progress =
 					Math.min(
 						Math.max(
-							missileProgress,
+							progress,
 							0
 						),
 						1
 					);
 
-				// launch position
 				const launchVec =
 					this.latLonToVector3(
 
-						this.missileLaunchLat,
+						missile.launchLat,
 
-						this.missileLaunchLon,
+						missile.launchLon,
 
 						this.earthRadius +
 						0.01
 					);
 
-				// =================================
-				// TARGET CARRIER
-				// =================================
-
-				const targetCarrier = this.carriers[this.state.selectedCarrierIndex];
-
 				const targetVec =
 					this.latLonToVector3(
 
-						targetCarrier.lat,
+						missile.targetLat,
 
-						targetCarrier.lon,
+						missile.targetLon,
 
-						this.earthRadius + 0.01
+						this.earthRadius +
+						0.01
 					);
 
-
-				// earth rotation
 				launchVec.applyAxisAngle(
 
-					new THREE.Vector3(0,1,0),
+					new THREE.Vector3(
+						0,
+						1,
+						0
+					),
 
 					this.earth.rotation.y
 				);
 
 				targetVec.applyAxisAngle(
 
-					new THREE.Vector3(0,1,0),
+					new THREE.Vector3(
+						0,
+						1,
+						0
+					),
 
 					this.earth.rotation.y
 				);
 
-				// interpolate
 				const missilePos =
 					new THREE.Vector3()
 					.lerpVectors(
@@ -1502,14 +1637,13 @@ export default class Earth extends Component {
 
 						targetVec,
 
-						missileProgress
+						progress
 					);
 
-				// ballistic altitude arc
 				const arcHeight =
 					Math.sin(
 						Math.PI *
-						missileProgress
+						progress
 					) * 0.25;
 
 				missilePos.normalize();
@@ -1521,38 +1655,38 @@ export default class Earth extends Component {
 					arcHeight
 				);
 
-				// set missile position
-				this.kheibarMissile.position.copy(
+				missile.mesh.position.copy(
 					missilePos
 				);
 
-				// orient missile
-				this.kheibarMissile.lookAt(
+				missile.mesh.lookAt(
 					targetVec
 				);
 
-				// trail
-				this.missileTrailPoints.push(
-
+				missile.trailPoints.push(
 					missilePos.clone()
 				);
 
-				// limit trail size
 				if (
-					this.missileTrailPoints.length >
-					400
+					missile.trailPoints.length >
+					500
 				){
-
-					this.missileTrailPoints.shift();
+					missile.trailPoints.shift();
 				}
 
-				this.missileTrailGeometry.setFromPoints(
+				missile.trailGeometry.setFromPoints(
 
-					this.missileTrailPoints
+					missile.trailPoints
 				);
-			} else {
-				this.kheibarMissile.visible = false;
-			}
+
+				if (
+					progress >= 1
+				){
+
+					missile.mesh.visible =
+						false;
+				}
+			});
 
 			// =================================
 			// MISSILE STRIKE RINGS
@@ -2283,6 +2417,147 @@ export default class Earth extends Component {
 		});
 	}
 
+	launchMissile({
+		launchTime,
+
+		speedKmS,
+
+		rangeKm,
+
+		launchLat,
+
+		launchLon,
+
+		targetLat,
+
+		targetLon,
+
+		color = "yellow",
+
+		name = "Missile"
+	}){
+
+		const missileMesh =
+			new THREE.Mesh(
+
+				new THREE.SphereGeometry(
+					0.001,
+					12,
+					12
+				),
+
+				new THREE.MeshBasicMaterial({
+					color
+				})
+			);
+
+		this.scene.add(
+			missileMesh
+		);
+
+		missileMesh.visible = false;
+
+		const trailGeometry =
+			new THREE.BufferGeometry();
+
+		const trail =
+			new THREE.Line(
+
+				trailGeometry,
+
+				new THREE.LineBasicMaterial({
+
+					color,
+
+					transparent: true,
+
+					opacity: 1
+				})
+			);
+
+		this.scene.add(trail);
+
+		this.activeMissiles.push({
+
+			name,
+
+			mesh: missileMesh,
+
+			trail,
+
+			trailGeometry,
+
+			trailPoints: [],
+
+			launchTime,
+
+			speedKmS,
+
+			rangeKm,
+
+			flightDuration:
+				(rangeKm / speedKmS) * 1000,
+
+			launchLat,
+
+			launchLon,
+
+			targetLat,
+
+			targetLon
+		});
+	}
+
+	fireRecommendedMissile(
+		missileName,
+		detection
+	){
+
+		const missile =
+			this.state.missiles.find(
+
+				m => m.name === missileName
+			);
+
+		if (!missile){
+			return;
+		}
+
+		this.launchMissile({
+
+			name:
+				missile.name,
+
+			launchTime:
+				this.currentSimTime,
+
+			speedKmS:
+				parseFloat(
+					missile.speed
+				),
+
+			rangeKm:
+				parseFloat(
+					missile.range
+				),
+
+			launchLat:
+				detection.launchSiteLat,
+
+			launchLon:
+				detection.launchSiteLon,
+
+			targetLat:
+				detection.carrierLat,
+
+			targetLon:
+				detection.carrierLon,
+
+			color:
+				"yellow"
+		});
+	}
+
 	// =====================================================
 	// TIMELINE
 	// =====================================================
@@ -2711,13 +2986,15 @@ export default class Earth extends Component {
 									return false;
 								}
 
+								const maxAgeMinutes = 15 * this.timeScale;
+
 								const ageMinutes =
 									(
 										this.currentSimTime -
 										detection.detectionTimestamp
 									) / 60000;
 
-								if (ageMinutes > 15){
+								if (ageMinutes > maxAgeMinutes){
 									return false;
 								}
 
@@ -2740,12 +3017,19 @@ export default class Earth extends Component {
 												return (
 													<span 
 														className={styles.missileSelection}
+														onClick={() =>
+															this.fireRecommendedMissile(
+																missile,
+																detection
+															)
+														}
 													> 
 														{missile} 
 													</span>
 												)
 											})
 										} 
+
 										at coordinate 
 										<div className={styles.coordinateSelection}>
 											{detection.carrierLat}
