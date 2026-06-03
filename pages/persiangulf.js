@@ -90,7 +90,8 @@ export default class Earth extends Component {
 					range: "800 km",
 					homing: "GPS / INS",
 					type: "SRBM",
-					warhead: "750 kg",
+					warhead: 750,
+					damageAreaM2: 525000,
 					role: "Ballistic Strike",
 					count: 0
 				},
@@ -101,7 +102,8 @@ export default class Earth extends Component {
 					range: "1450 km",
 					homing: "GPS / INS",
 					type: "MRBM",
-					warhead: "High Explosive",
+					warhead: 600,
+					damageAreaM2: 420000,
 					role: "Precision Strike",
 					count: 0
 				},
@@ -112,7 +114,8 @@ export default class Earth extends Component {
 					range: "1500 km",
 					homing: "Guided",
 					type: "HGV",
-					warhead: "Maneuverable",
+					warhead: 450,
+					damageAreaM2: 315000,
 					role: "Hypersonic Penetration",
 					count: 0
 				},
@@ -123,7 +126,8 @@ export default class Earth extends Component {
 					range: "2100 km",
 					homing: "Radar",
 					type: "MRBM + HGV",
-					warhead: "Conventional",
+					warhead: 1000,
+					damageAreaM2: 700000,
 					role: "Hypersonic Glide",
 					count: 0
 				},
@@ -134,11 +138,12 @@ export default class Earth extends Component {
 					range: "1650 km",
 					homing: "Radar",
 					type: "ASBM",
-					warhead: "Anti-Ship",
+					warhead: 600,
+					damageAreaM2: 420000,
 					role: "Carrier Killer",
 					count: 0
 				}
-			],
+			]
 
 			selectedMissile: {
 				name: "Kheibar Shekan",
@@ -180,10 +185,65 @@ export default class Earth extends Component {
 				'Nevatim Airbase'
 			], 
 
+			airbasesStats: [
+				{
+					name: "Hatzor Airbase",
+					totalAreaM2: 4900000,
+					theoreticalInterceptionRate: 0.85
+				},
+				{
+					name: "Prince Sultan Airbase",
+					totalAreaM2: 4500000,
+					theoreticalInterceptionRate: 0.80
+				},
+				{
+					name: "Ben Gurion Airport",
+					totalAreaM2: 840000,
+					theoreticalInterceptionRate: 0.70
+				},
+				{
+					name: "Tel Nof Airbase",
+					totalAreaM2: 3400000,
+					theoreticalInterceptionRate: 0.85
+				},
+				{
+					name: "Nevatim Airbase",
+					totalAreaM2: 6000000,
+					theoreticalInterceptionRate: 0.88
+				}
+			]
+
 			aircraftCarriers: [
 				'USS Abraham Lincoln',
 				'USS George Washington',
 				'USS George W Bush'
+			],
+
+			aircraftCarriersStats: [
+				{
+					name: "USS Abraham Lincoln",
+					deckAreaM2: 31000,
+					displacementTons: 100000,
+					aircraftCapacity: 90,
+					theoreticalInterceptionRate: 0.82,
+					damageThresholdKg: 3000
+				},
+				{
+					name: "USS George Washington",
+					deckAreaM2: 31000,
+					displacementTons: 100000,
+					aircraftCapacity: 90,
+					theoreticalInterceptionRate: 0.82,
+					damageThresholdKg: 3000
+				},
+				{
+					name: "USS George W Bush",
+					deckAreaM2: 31000,
+					displacementTons: 100000,
+					aircraftCapacity: 90,
+					theoreticalInterceptionRate: 0.84,
+					damageThresholdKg: 3200
+				}
 			]
 		};
 

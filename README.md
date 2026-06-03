@@ -77,9 +77,9 @@ Range from Target to Missile City is smaller than Missile Range
 
 [X] Total Missile Counts updating after Launch
 
-[ ] Add Warhead Spec for Each Missile 
+[X] Add Warhead Size  for Each Missile 
 
-[ ] Airbase Damage Percentage basing on Interception rate and Warhead Size ()
+[ ] Airbase and Carrier Damage Percentage basing on Interception rate and and Airbase Size
 
 [ ] Missile Launch at Carriers and Airbases detection coordinate 15 mins after Targeting
 
