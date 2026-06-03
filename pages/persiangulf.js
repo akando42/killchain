@@ -143,7 +143,7 @@ export default class Earth extends Component {
 					role: "Carrier Killer",
 					count: 0
 				}
-			]
+			],
 
 			selectedMissile: {
 				name: "Kheibar Shekan",
@@ -189,29 +189,34 @@ export default class Earth extends Component {
 				{
 					name: "Hatzor Airbase",
 					totalAreaM2: 4900000,
-					theoreticalInterceptionRate: 0.85
+					theoreticalInterceptionRate: 0.85,
+					damageAssessment: 100
 				},
 				{
 					name: "Prince Sultan Airbase",
 					totalAreaM2: 4500000,
-					theoreticalInterceptionRate: 0.80
+					theoreticalInterceptionRate: 0.80,
+					damageAssessment: 100
 				},
 				{
 					name: "Ben Gurion Airport",
 					totalAreaM2: 840000,
-					theoreticalInterceptionRate: 0.70
+					theoreticalInterceptionRate: 0.70,
+					damageAssessment: 100
 				},
 				{
 					name: "Tel Nof Airbase",
 					totalAreaM2: 3400000,
-					theoreticalInterceptionRate: 0.85
+					theoreticalInterceptionRate: 0.85,
+					damageAssessment: 100
 				},
 				{
 					name: "Nevatim Airbase",
 					totalAreaM2: 6000000,
-					theoreticalInterceptionRate: 0.88
+					theoreticalInterceptionRate: 0.88,
+					damageAssessment: 100
 				}
-			]
+			],
 
 			aircraftCarriers: [
 				'USS Abraham Lincoln',
@@ -222,27 +227,30 @@ export default class Earth extends Component {
 			aircraftCarriersStats: [
 				{
 					name: "USS Abraham Lincoln",
-					deckAreaM2: 31000,
+					totalAreaM2: 31000,
 					displacementTons: 100000,
 					aircraftCapacity: 90,
 					theoreticalInterceptionRate: 0.82,
-					damageThresholdKg: 3000
+					damageThresholdKg: 3000,
+					damageAssessment: 100
 				},
 				{
 					name: "USS George Washington",
-					deckAreaM2: 31000,
+					totalAreaM2: 31000,
 					displacementTons: 100000,
 					aircraftCapacity: 90,
 					theoreticalInterceptionRate: 0.82,
-					damageThresholdKg: 3000
+					damageThresholdKg: 3000,
+					damageAssessment: 100
 				},
 				{
 					name: "USS George W Bush",
-					deckAreaM2: 31000,
+					totalAreaM2: 31000,
 					displacementTons: 100000,
 					aircraftCapacity: 90,
 					theoreticalInterceptionRate: 0.84,
-					damageThresholdKg: 3200
+					damageThresholdKg: 3200,
+					damageAssessment: 100
 				}
 			]
 		};
@@ -266,6 +274,8 @@ export default class Earth extends Component {
 		this.updateMissileCount = this.updateMissileCount.bind(this)
 
 		this.updateTargetingData = this.updateTargetingData.bind(this);
+
+		this.calculateTargetDamage = this.calculateTargetDamage.bind(this);
 	}
 
 	// =====================================================
@@ -2573,6 +2583,10 @@ export default class Earth extends Component {
 		this.selectMissile(missile)
 		this.updateMissileCount(missile)
 
+		
+		this.calculateTargetDamage(missile, detection.carrierName)
+		console.log("Targeting  ", detection.carrierName)
+
 		if (!missile){
 			return;
 		}
@@ -2847,6 +2861,58 @@ export default class Earth extends Component {
 			);
 
 		return R * c;
+	}
+
+	calculateTargetDamage(missile, targetName){
+	    // const missile = this.state.selectedMissile;
+	    // if (!missile){return 0;}
+
+
+	    // AIRBASE
+	    const airbase = this.state.airbasesStats.find(a => a.name === targetName);
+	    if (airbase){
+	    	let airbases = this.state.airbasesStats.map(airbase => {
+	    		if (airbase.name === targetName){
+	    			// airbase.damageAssessment -= (missile.damageAreaM2/airbase.totalAreaM2)* 100
+	    			let damage = (missile.damageAreaM2 > airbase.totalAreaM2)? 100 : (missile.damageAreaM2/airbase.totalAreaM2 *100)
+	    			// console.log("Damage ", missile.damageAreaM2, carrier.totalAreaM2, damage, missile)
+	    			// carrier.damageAssessment -= (missile.damageAreaM2/carrier.totalAreaM2)* 100
+	    			airbase.damageAssessment = ((airbase.damageAssessment - damage) > 0) ? (airbase.damageAssessment) - damage : 0
+	    			return airbase
+	    		} else {
+	    			return airbase
+	    		}
+	    	})
+
+	    	this.setState({ 
+	    		airbasesStats: airbases 
+	    	})
+
+	        // const effectiveDamageArea = missile.damageAreaM2 * (1 - airbase.theoreticalInterceptionRate);
+	        // return Math.min(100,(effectiveDamageArea / airbase.totalAreaM2) * 100);
+	    }
+
+	    // CARRIER
+	    const carrier = this.state.aircraftCarriersStats.find(c => c.name === targetName);
+
+	    if (carrier){
+	    	let carriers = this.state.aircraftCarriersStats.map(carrier => {
+	    		if (carrier.name === targetName){
+	    			let damage = (missile.damageAreaM2 > carrier.totalAreaM2)? 100 : (missile.damageAreaM2/carrier.totalAreaM2 *100)
+	    			// console.log("Damage ", missile.damageAreaM2, carrier.totalAreaM2, damage, missile)
+	    			// carrier.damageAssessment -= (missile.damageAreaM2/carrier.totalAreaM2)* 100
+	    			carrier.damageAssessment = ((carrier.damageAssessment - damage) > 0) ? (carrier.damageAssessment) - damage : 0
+	    			return carrier
+	    		} else {
+	    			return carrier
+	    		}
+	    	})
+
+	    	this.setState({ aircraftCarriersStats: carriers})
+
+	        // const effectiveDamageArea = missile.damageAreaM2 * (1 - carrier.theoreticalInterceptionRate);
+	        // return Math.min(100,(effectiveDamageArea / carrier.totalAreaM2) * 100);
+	    }
 	}
 
 	// =====================================================
@@ -3377,23 +3443,67 @@ export default class Earth extends Component {
 				<div className={styles.carrierControls}>
 					{
 						this.carriers &&
-						this.carriers.map((carrier, index) => (
+						this.carriers.map((carrier, index) => {
 
-							<div
+							// console.log("CARRIER  ", carrier, carrier.name, carrier.totalAreaM2)
 
-								key={index}
+							let airBaseStats = this.state.airbasesStats.filter(base => base.name === carrier.name)
+							let carrierStats = this.state.aircraftCarriersStats.filter(aircraftCarrier => aircraftCarrier.name === carrier.name)
 
-								className={styles.carrierSelector}
+							
+							let damageAssessment 
 
-								onClick={() =>
-									this.selectCarrier(index)
-								}
-							>
+							// let damageStats = this.calculateTargetDamage(carrier.name)
+							// console.log("Damage Stats ", damageStats)
 
-								{carrier.name}
+							// let targetArea
+							// let damageAssessment
 
-							</div>
-						))
+							// let warheadDamageArea = 7000
+
+							if (airBaseStats.length > 0){
+								// targetArea = airBaseStats[0]['totalAreaM2']
+								// // console.log("AIRBASE ", carrier.name, targetArea)
+								// damageAssessment = ((targetArea - warheadDamageArea)/targetArea)*100
+								damageAssessment = airBaseStats[0]['damageAssessment']
+							}
+
+							if (carrierStats.length > 0){
+								// targetArea = carrierStats[0]['totalAreaM2']
+								// // console.log("CARRIER ", carrier.name, targetArea)
+								// damageAssessment = ((targetArea - warheadDamageArea)/targetArea)*100
+								damageAssessment = carrierStats[0]['damageAssessment']
+							}
+
+							// let thisCarrier = this.state.aircraftCarriersStats
+
+							// let carrierStats = this.state.carrierStats
+
+							return (
+
+								<div
+
+									key={index}
+
+									className={styles.carrierSelector}
+
+									onClick={() =>
+										this.selectCarrier(index)
+									}
+								>
+
+									<span> {carrier.name} </span>
+
+									<span className={styles.damageAssessment}>
+										{damageAssessment.toFixed(1)} %
+									</span>
+
+								</div>
+
+							)
+
+							
+						})
 					}
 				</div>
 

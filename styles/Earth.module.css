@@ -90,7 +90,8 @@
 	min-width: 10vw;
 	background-color: red;
 	margin: 10px;
-	text-align: center;width: ;
+	display: flex;
+	flex-direction: row;
 }
 
 .carrierSelector:active {
@@ -322,6 +323,13 @@
 	padding: 3px;
 }
 
+.damageAssessment {
+	/*position: absolute;*/
+	background-color: black;
+	color: white;
+	margin: 0 0 0 10px;
+}
+
 /* ======================================== */
 /* 4K TV OPTIMIZATION */
 /* ======================================== */
@@ -340,6 +348,7 @@
 		min-height: 75px;
 
 		font-size: 24px;
+		position: relative;
 	}
 
 	.satInfoPanel,
