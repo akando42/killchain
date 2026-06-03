@@ -91,7 +91,8 @@ export default class Earth extends Component {
 					homing: "GPS / INS",
 					type: "SRBM",
 					warhead: "750 kg",
-					role: "Ballistic Strike"
+					role: "Ballistic Strike",
+					count: 0
 				},
 				{
 					name: "Kheibar Shekan",
@@ -101,7 +102,8 @@ export default class Earth extends Component {
 					homing: "GPS / INS",
 					type: "MRBM",
 					warhead: "High Explosive",
-					role: "Precision Strike"
+					role: "Precision Strike",
+					count: 0
 				},
 				{
 					name: "Fattah2",
@@ -111,7 +113,8 @@ export default class Earth extends Component {
 					homing: "Guided",
 					type: "HGV",
 					warhead: "Maneuverable",
-					role: "Hypersonic Penetration"
+					role: "Hypersonic Penetration",
+					count: 0
 				},
 				{
 					name: "DF17",
@@ -121,7 +124,8 @@ export default class Earth extends Component {
 					homing: "Radar",
 					type: "MRBM + HGV",
 					warhead: "Conventional",
-					role: "Hypersonic Glide"
+					role: "Hypersonic Glide",
+					count: 0
 				},
 				{
 					name: "DF21",
@@ -131,7 +135,8 @@ export default class Earth extends Component {
 					homing: "Radar",
 					type: "ASBM",
 					warhead: "Anti-Ship",
-					role: "Carrier Killer"
+					role: "Carrier Killer",
+					count: 0
 				}
 			],
 
@@ -197,6 +202,8 @@ export default class Earth extends Component {
 		this.selectCarrier = this.selectCarrier.bind(this);
 
 		this.selectMissile = this.selectMissile.bind(this);
+
+		this.updateMissileCount = this.updateMissileCount.bind(this)
 
 		this.updateTargetingData = this.updateTargetingData.bind(this);
 	}
@@ -2284,6 +2291,8 @@ export default class Earth extends Component {
 
 	// SELECT MISSILE
 	selectMissile(missile){
+		console.log("SELECTING MISSILE ", missile)
+
 		this.setState({
 
 			selectedMissile: missile
@@ -2337,6 +2346,22 @@ export default class Earth extends Component {
 				color: "yellow"
 			});
 		});
+	}
+
+	updateMissileCount(missileObj){
+		let missiles = this.state.missiles.map(missile => {
+			if (missileObj.name === missile.name){
+				missile.count += 1
+				return missile
+			} else {
+				return missile
+			}
+		})
+
+		console.log(missiles)
+		this.setState({
+			missiles: missiles
+		})
 	}
 
 	// =====================================================
@@ -2482,11 +2507,11 @@ export default class Earth extends Component {
 		detection
 	){
 
-		const missile =
-			this.state.missiles.find(
+		const missile = this.state.missiles.find(
+			m => m.name === missileName);
 
-				m => m.name === missileName
-			);
+		this.selectMissile(missile)
+		this.updateMissileCount(missile)
 
 		if (!missile){
 			return;
@@ -2821,7 +2846,11 @@ export default class Earth extends Component {
 									}
 								>
 
-									{missile.name}
+									{missile.name} 
+
+									<span className={styles.missileCount}>
+										{missile.count}
+									</span>
 
 								</div>
 							);

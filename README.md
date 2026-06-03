@@ -73,6 +73,14 @@ Range from Target to Missile City is smaller than Missile Range
 
 [X] Convert the KHEIBAR SHEKAN SIMULATION path simulation into dynamic simulation with input launch time, missile speed, missile range, lat, lon
 
+[X] Update Image to Chosen Missiles 
+
+[X] Total Missile Counts updating after Launch
+
+[ ] Add Warhead Spec for Each Missile 
+
+[ ] Airbase Damage Percentage basing on Interception rate and Warhead Size ()
+
 [ ] Missile Launch at Carriers and Airbases detection coordinate 15 mins after Targeting
 
 [ ] Randomize Carrier Position Within 30 mins radius of max speed every 30 mins

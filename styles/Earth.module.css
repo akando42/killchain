@@ -268,6 +268,7 @@
 	text-align: center;
 	font-weight: 700;
 	border: 1px solid yellow;
+	position: relative;
 }
 
 .missileRecommendation {
@@ -311,6 +312,14 @@
 	margin: 3px;
 	padding: 3px;
 	background-color: blue;
+}
+
+.missileCount {
+	position: absolute;
+	right: 10px;
+	top: 6px;
+	background-color: blue;
+	padding: 3px;
 }
 
 /* ======================================== */
