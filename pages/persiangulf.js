@@ -189,25 +189,25 @@ export default class Earth extends Component {
 				{
 					name: "Hatzor Airbase",
 					totalAreaM2: 4900000,
-					theoreticalInterceptionRate: 0.85,
+					theoreticalInterceptionRate: 0.92,
 					damageAssessment: 100
 				},
 				{
 					name: "Prince Sultan Airbase",
 					totalAreaM2: 4500000,
-					theoreticalInterceptionRate: 0.80,
+					theoreticalInterceptionRate: 0.62,
 					damageAssessment: 100
 				},
 				{
 					name: "Ben Gurion Airport",
 					totalAreaM2: 840000,
-					theoreticalInterceptionRate: 0.70,
+					theoreticalInterceptionRate: 0.91,
 					damageAssessment: 100
 				},
 				{
 					name: "Tel Nof Airbase",
 					totalAreaM2: 3400000,
-					theoreticalInterceptionRate: 0.85,
+					theoreticalInterceptionRate: 0.92,
 					damageAssessment: 100
 				},
 				{
@@ -230,7 +230,7 @@ export default class Earth extends Component {
 					totalAreaM2: 31000,
 					displacementTons: 100000,
 					aircraftCapacity: 90,
-					theoreticalInterceptionRate: 0.82,
+					theoreticalInterceptionRate: 0.63,
 					damageThresholdKg: 3000,
 					damageAssessment: 100
 				},
@@ -239,7 +239,7 @@ export default class Earth extends Component {
 					totalAreaM2: 31000,
 					displacementTons: 100000,
 					aircraftCapacity: 90,
-					theoreticalInterceptionRate: 0.82,
+					theoreticalInterceptionRate: 0.63,
 					damageThresholdKg: 3000,
 					damageAssessment: 100
 				},
@@ -248,7 +248,7 @@ export default class Earth extends Component {
 					totalAreaM2: 31000,
 					displacementTons: 100000,
 					aircraftCapacity: 90,
-					theoreticalInterceptionRate: 0.84,
+					theoreticalInterceptionRate: 0.63,
 					damageThresholdKg: 3200,
 					damageAssessment: 100
 				}
@@ -2864,19 +2864,13 @@ export default class Earth extends Component {
 	}
 
 	calculateTargetDamage(missile, targetName){
-	    // const missile = this.state.selectedMissile;
-	    // if (!missile){return 0;}
-
 
 	    // AIRBASE
 	    const airbase = this.state.airbasesStats.find(a => a.name === targetName);
 	    if (airbase){
 	    	let airbases = this.state.airbasesStats.map(airbase => {
 	    		if (airbase.name === targetName){
-	    			// airbase.damageAssessment -= (missile.damageAreaM2/airbase.totalAreaM2)* 100
-	    			let damage = (missile.damageAreaM2 > airbase.totalAreaM2)? 100 : (missile.damageAreaM2/airbase.totalAreaM2 *100)
-	    			// console.log("Damage ", missile.damageAreaM2, carrier.totalAreaM2, damage, missile)
-	    			// carrier.damageAssessment -= (missile.damageAreaM2/carrier.totalAreaM2)* 100
+	    			let damage = (missile.damageAreaM2 * (1-airbase.theoreticalInterceptionRate) > airbase.totalAreaM2)? 100 : (missile.damageAreaM2 * (1-airbase.theoreticalInterceptionRate) /airbase.totalAreaM2 *100)
 	    			airbase.damageAssessment = ((airbase.damageAssessment - damage) > 0) ? (airbase.damageAssessment) - damage : 0
 	    			return airbase
 	    		} else {
@@ -2887,9 +2881,6 @@ export default class Earth extends Component {
 	    	this.setState({ 
 	    		airbasesStats: airbases 
 	    	})
-
-	        // const effectiveDamageArea = missile.damageAreaM2 * (1 - airbase.theoreticalInterceptionRate);
-	        // return Math.min(100,(effectiveDamageArea / airbase.totalAreaM2) * 100);
 	    }
 
 	    // CARRIER
@@ -2898,9 +2889,8 @@ export default class Earth extends Component {
 	    if (carrier){
 	    	let carriers = this.state.aircraftCarriersStats.map(carrier => {
 	    		if (carrier.name === targetName){
-	    			let damage = (missile.damageAreaM2 > carrier.totalAreaM2)? 100 : (missile.damageAreaM2/carrier.totalAreaM2 *100)
-	    			// console.log("Damage ", missile.damageAreaM2, carrier.totalAreaM2, damage, missile)
-	    			// carrier.damageAssessment -= (missile.damageAreaM2/carrier.totalAreaM2)* 100
+	    			let damage = (missile.damageAreaM2 * (1-carrier.theoreticalInterceptionRate) > carrier.totalAreaM2)? 100 : (missile.damageAreaM2 * (1-carrier.theoreticalInterceptionRate)/carrier.totalAreaM2 *100)
+	    			console.log("Carrier ", carrier.name, "Damage %", damage, carrier.theoreticalInterceptionRate, missile.damageAreaM2, carrier.totalAreaM2)
 	    			carrier.damageAssessment = ((carrier.damageAssessment - damage) > 0) ? (carrier.damageAssessment) - damage : 0
 	    			return carrier
 	    		} else {
@@ -2909,9 +2899,6 @@ export default class Earth extends Component {
 	    	})
 
 	    	this.setState({ aircraftCarriersStats: carriers})
-
-	        // const effectiveDamageArea = missile.damageAreaM2 * (1 - carrier.theoreticalInterceptionRate);
-	        // return Math.min(100,(effectiveDamageArea / carrier.totalAreaM2) * 100);
 	    }
 	}
 

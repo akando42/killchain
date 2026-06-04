@@ -79,11 +79,11 @@ Range from Target to Missile City is smaller than Missile Range
 
 [X] Add Warhead Size for Each Missile 
 
-[ ] Update Damage Assessment Percentage Airbase and Carrier Damage After this.fireRecommendedMissile using selected missile warhead specs and targeting Carrier Size
+[X] Update Damage Assessment Percentage Airbase and Carrier Damage After this.fireRecommendedMissile using selected missile warhead specs and targeting Carrier Size
 
-[ ] Airbase and Carrier Damage Percentage basing on Interception rate
+[X] Airbase and Carrier Damage Percentage basing on Interception rate
 
-[ ] Missile Launch at Carriers and Airbases detection coordinate 15 mins after Targeting
+[ ] Automate Missile Launch at Carriers and Airbases detection coordinate 15 mins after Detection Until Target Fully Neutralized
 
 [ ] Randomize Carrier Position Within 30 mins radius of max speed every 30 mins
 
