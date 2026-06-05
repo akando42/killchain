@@ -83,54 +83,6 @@ Range from Target to Missile City is smaller than Missile Range
 
 [X] Airbase and Carrier Damage Percentage basing on Interception rate
 
-[ ] Automate Missile Launch at Carriers and Airbases detection coordinate 15 mins after Detection Until Target Fully Neutralized
+[X] Automate Missile Launch at Carriers and Airbases detection coordinate after Detection Until Target Fully Neutralized
 
-[ ] Randomize Carrier Position Within 30 mins radius of max speed every 30 mins
-
-[ ] Count Total Missiles Launches of Each Types
-
-[ ] Track On Target Accuracy of Each Types
-
-[ ] Calculate On Target Strike Probability Formula basing on 
-Missile Speed, Range, Carrier Distance and Homing Techniques
-
-[ ] Build new satelite constellation to track US Carrier
-[ ] Build new missiles to target US Carrier
-
-[ ] Read the Code, Understand the Maths and Note on Paper
-```
-// Animating Satellite Orbit
-
-	this.satellites.forEach((sat) => {
-		const angle = baseAngle + sat.phase
-		
-
-		let x = this.orbitRadius * Math.cos(angle)
-		let y = 0
-		let z = this.orbitRadius * Math.sin(angle)
-
-		// Inclination Angles
-		const cosI = Math.cos(this.inclination)
-		const sinI = Math.sin(this.inclination)
-
-		let yInclined = y * cosI - z * sinI;
-		let zInclined = y * sinI + z * cosI;
-
-		// RAAN rotation 
-		const cosR = Math.cos(sat.raan)
-		const sinR = Math.sin(sat.raan)
-
-		let xFinal = x * cosR - zInclined * sinR
-		let zFinal = x * sinR + zInclined * cosR
-
-		// Anti Access Area Denial 
-		// console.log("Satellite Coordinate ", xFinal, yInclined, zFinal)
-
-		sat.mesh.position.set(xFinal, yInclined, zFinal)
-	})
-```
-
-[ ] Seabed Detection Method For Missile Strike Coordination
-
-
-
+[ ] Data Toggle for Interception rate for Total Missiles Needed of each type and maybe total budget

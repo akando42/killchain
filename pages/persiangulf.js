@@ -276,6 +276,10 @@ export default class Earth extends Component {
 		this.updateTargetingData = this.updateTargetingData.bind(this);
 
 		this.calculateTargetDamage = this.calculateTargetDamage.bind(this);
+
+		this.damageAssessment = this.damageAssessment.bind(this)
+
+		this.automateLaunch = this.automateLaunch.bind(this)
 	}
 
 	// =====================================================
@@ -2592,37 +2596,15 @@ export default class Earth extends Component {
 		}
 
 		this.launchMissile({
-
-			name:
-				missile.name,
-
-			launchTime:
-				this.currentSimTime,
-
-			speedKmS:
-				parseFloat(
-					missile.speed
-				),
-
-			rangeKm:
-				parseFloat(
-					missile.range
-				),
-
-			launchLat:
-				detection.launchSiteLat,
-
-			launchLon:
-				detection.launchSiteLon,
-
-			targetLat:
-				detection.carrierLat,
-
-			targetLon:
-				detection.carrierLon,
-
-			color:
-				"yellow"
+			name:missile.name,
+			launchTime: this.currentSimTime,
+			speedKmS: parseFloat(missile.speed),
+			rangeKm:parseFloat(missile.range),
+			launchLat: detection.launchSiteLat,
+			launchLon: detection.launchSiteLon,
+			targetLat: detection.carrierLat,
+			targetLon: detection.carrierLon,
+			color: "yellow"
 		});
 	}
 
@@ -2707,7 +2689,7 @@ export default class Earth extends Component {
 			recommendedMissiles =
 				["DF17","DF21"];
 
-		}else{
+		} else{
 
 			carrierType =
 				"AIRBASE";
@@ -2763,27 +2745,52 @@ export default class Earth extends Component {
 			};
 		}
 
-		const track =
-			this.targetTracks[carrierName];
+		const track = this.targetTracks[carrierName];
 
 		// ignore duplicate detections
 		// within 5 simulated minutes
 
-		if (
-			detectionTimestamp -
-			track.lastDetection <
-			(5 * 60 * 1000)
+		if (detectionTimestamp - track.lastDetection < (5 * 60 * 1000)
 		){
 			return;
 		}
 
 		track.count += 1;
 
-		track.lastDetection =
-			detectionTimestamp;
+		track.lastDetection = detectionTimestamp;
+
+		let detectionObj = {
+			carrierName,
+			carrierType,
+
+			carrierLat,
+			carrierLon,
+
+			detectionTime: gmtTime,
+
+			detectionTimestamp,
+
+			recommendedMissiles,
+
+			confirmed:
+				track.confirmed,
+
+			detectionCount:
+				track.count,
+
+			distanceKm:
+				Math.round(
+					nearestDistanceKm
+				),
+
+			launchSiteLat:
+				launchSite?.lat,
+
+			launchSiteLon:
+				launchSite?.lon
+		}
 
 		if (track.count >= 2){
-
 			track.confirmed = true;
 		}
 
@@ -2795,37 +2802,7 @@ export default class Earth extends Component {
 			],
 
 			detections: [
-				{
-					carrierName,
-					carrierType,
-
-					carrierLat,
-					carrierLon,
-
-					detectionTime: gmtTime,
-
-					detectionTimestamp,
-
-					recommendedMissiles,
-
-					confirmed:
-						track.confirmed,
-
-					detectionCount:
-						track.count,
-
-					distanceKm:
-						Math.round(
-							nearestDistanceKm
-						),
-
-					launchSiteLat:
-						launchSite?.lat,
-
-					launchSiteLon:
-						launchSite?.lon
-				},
-
+				detectionObj,
 				...this.state.detections
 			]
 		});
@@ -2902,13 +2879,112 @@ export default class Earth extends Component {
 	    }
 	}
 
+	damageAssessment(carrierName){
+		let airBaseStats = this.state.airbasesStats.filter(base => base.name === carrierName)
+		let carrierStats = this.state.aircraftCarriersStats.filter(aircraftCarrier => aircraftCarrier.name === carrierName)
+		let damageAssessment 
+
+		if (airBaseStats.length > 0){
+			// targetArea = airBaseStats[0]['totalAreaM2']
+			// // console.log("AIRBASE ", carrier.name, targetArea)
+			// damageAssessment = ((targetArea - warheadDamageArea)/targetArea)*100
+			damageAssessment = airBaseStats[0]['damageAssessment']
+			return damageAssessment
+		}
+
+		if (carrierStats.length > 0){
+			// targetArea = carrierStats[0]['totalAreaM2']
+			// // console.log("CARRIER ", carrier.name, targetArea)
+			// damageAssessment = ((targetArea - warheadDamageArea)/targetArea)*100
+			damageAssessment = carrierStats[0]['damageAssessment']
+			return damageAssessment
+		}
+	}
+
+	// AUTOMATIC FIRING SOLUTION
+
+	automateLaunch(){
+		let confirmedDetections = this.state.detections.filter(
+				detection => {
+
+					if (!detection.confirmed){
+						return false;
+					}
+
+					if (!this.currentSimTime){
+						return false;
+					}
+
+					const maxAgeMinutes = 15 * this.timeScale;
+
+					const ageMinutes = (this.currentSimTime - detection.detectionTimestamp) / 60000;
+
+					if (ageMinutes > maxAgeMinutes){
+						return false;
+					}
+
+					const missileRange = parseFloat(this.state.selectedMissile.range);
+					return (detection.distanceKm <= missileRange);
+				})
+		console.log("Checking detection list", confirmedDetections, confirmedDetections.length)
+
+		if (confirmedDetections.length > 0){
+			let carrierList = []
+			let newestDetections = confirmedDetections
+				.sort((a,b) => b.detectionTimestamp - a.detectionTimestamp)
+				.filter(detection => {
+		            if (carrierList.includes(detection.carrierName)){ 
+		            	return false;
+		            }
+		            
+		            carrierList.push(detection.carrierName);
+		            return true;
+		        });
+
+			console.log(newestDetections)
+
+			newestDetections.map(target => {
+
+				// Checking target range for missile selection
+				let HoangMissiles = target.recommendedMissiles.filter(recommendedMissile => {
+					let missileStats = this.state.missiles.filter(missile => (missile.name === recommendedMissile))[0]
+					// console.log("Missile Stats ", missileStats, parseFloat(missileStats.range), target.distanceKm)
+
+					let withinRange = (parseFloat(missileStats.range) >= target.distanceKm)
+					// console.log("withinRange", withinRange)
+					return withinRange
+				})
+
+				console.log("Missiles ", HoangMissiles, target.recommendedMissiles)
+				let selectedMissile =  HoangMissiles.sort((a,b) => b.warhead > a.warhead)[0]
+
+				this.setState({ 
+					firedMissile: this.state.missiles.filter(missile => missile.name === selectedMissile)
+				})
+
+				console.log(`Firing ${selectedMissile} at ${target.carrierName} at distance ${target.distanceKm}`)
+
+				// Checking target damage assessment before firing
+				let damagePercentage = this.damageAssessment(target.carrierName)
+				console.log(`Carrier ${target.carrierName}  ${damagePercentage}`)
+
+				if (damagePercentage > 0){
+					this.fireRecommendedMissile(selectedMissile, target)		
+				}
+			})
+		}
+	}
+
 	// =====================================================
 	// LIFECYCLE
 	// =====================================================
 
 	componentDidMount(){
-
 		this.startEnvironment();
+
+		setInterval(() => {
+			this.automateLaunch()
+		}, 1000)
 	}
 
 	componentWillUnmount(){
@@ -3109,15 +3185,9 @@ export default class Earth extends Component {
 									return false;
 								}
 
-								const missileRange =
-									parseFloat(
-										this.state.selectedMissile.range
-									);
+								const missileRange = parseFloat(this.state.selectedMissile.range);
 
-								return (
-									detection.distanceKm <=
-									missileRange
-								);
+								return (detection.distanceKm <= missileRange);
 							})
 							.map(detection => {
 								return (
