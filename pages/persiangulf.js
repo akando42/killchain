@@ -3542,7 +3542,13 @@ export default class Earth extends Component {
 
 									key={index}
 
-									className={styles.carrierSelector}
+									className={`
+										${
+											damageAssessment > 0
+												? styles.carrierSelector
+												: styles.destroyedCarrier
+										}
+									`}
 
 									onClick={() =>
 										this.selectCarrier(index)
