@@ -279,6 +279,8 @@ export default class Earth extends Component {
 
 		this.damageAssessment = this.damageAssessment.bind(this)
 
+		this.updateInterceptionRate = this.updateInterceptionRate.bind(this)
+
 		this.automateLaunch = this.automateLaunch.bind(this)
 	}
 
@@ -1471,141 +1473,6 @@ export default class Earth extends Component {
 					pulse
 				);
 			});
-
-			// =================================
-			// KHEIBAR SHEKAN FLIGHT
-			// =================================
-
-			// if (
-			// 	simTime >=
-			// 	this.missileLaunchTime
-			// ){
-			// 	this.kheibarMissile.visible = true
-
-			// 	const elapsedMissileTime =
-			// 		simTime -
-			// 		this.missileLaunchTime;
-
-			// 	let missileProgress =
-			// 		elapsedMissileTime /
-			// 		this.missileFlightDuration;
-
-			// 	// clamp
-			// 	missileProgress =
-			// 		Math.min(
-			// 			Math.max(
-			// 				missileProgress,
-			// 				0
-			// 			),
-			// 			1
-			// 		);
-
-			// 	// launch position
-			// 	const launchVec =
-			// 		this.latLonToVector3(
-
-			// 			this.missileLaunchLat,
-
-			// 			this.missileLaunchLon,
-
-			// 			this.earthRadius +
-			// 			0.01
-			// 		);
-
-			// 	// =================================
-			// 	// TARGET CARRIER
-			// 	// =================================
-
-			// 	const targetCarrier = this.carriers[this.state.selectedCarrierIndex];
-
-			// 	const targetVec =
-			// 		this.latLonToVector3(
-
-			// 			targetCarrier.lat,
-
-			// 			targetCarrier.lon,
-
-			// 			this.earthRadius + 0.01
-			// 		);
-
-
-			// 	// earth rotation
-			// 	launchVec.applyAxisAngle(
-
-			// 		new THREE.Vector3(0,1,0),
-
-			// 		this.earth.rotation.y
-			// 	);
-
-			// 	targetVec.applyAxisAngle(
-
-			// 		new THREE.Vector3(0,1,0),
-
-			// 		this.earth.rotation.y
-			// 	);
-
-			// 	// interpolate
-			// 	const missilePos =
-			// 		new THREE.Vector3()
-			// 		.lerpVectors(
-
-			// 			launchVec,
-
-			// 			targetVec,
-
-			// 			missileProgress
-			// 		);
-
-			// 	// ballistic altitude arc
-			// 	const arcHeight =
-			// 		Math.sin(
-			// 			Math.PI *
-			// 			missileProgress
-			// 		) * 0.25;
-
-			// 	missilePos.normalize();
-
-			// 	missilePos.multiplyScalar(
-
-			// 		this.earthRadius +
-			// 		0.01 +
-			// 		arcHeight
-			// 	);
-
-			// 	// set missile position
-			// 	this.kheibarMissile.position.copy(
-			// 		missilePos
-			// 	);
-
-			// 	// orient missile
-			// 	this.kheibarMissile.lookAt(
-			// 		targetVec
-			// 	);
-
-			// 	// trail
-			// 	this.missileTrailPoints.push(
-
-			// 		missilePos.clone()
-			// 	);
-
-			// 	// limit trail size
-			// 	if (
-			// 		this.missileTrailPoints.length >
-			// 		400
-			// 	){
-
-			// 		this.missileTrailPoints.shift();
-			// 	}
-
-			// 	this.missileTrailGeometry.setFromPoints(
-
-			// 		this.missileTrailPoints
-			// 	);
-			// } else {
-			// 	this.kheibarMissile.visible = false;
-			// }
-
-			// KHEIBAR SHEKAN FLIGHT
 
 			this.activeMissiles.forEach((missile) => {
 
@@ -2901,6 +2768,54 @@ export default class Earth extends Component {
 		}
 	}
 
+	updateInterceptionRate(e){
+		
+
+		const value = Math.max(
+			0, Math.min(
+				1,
+				Number(e.target.value)
+			)
+		);
+		
+
+		let airBaseStats = this.state.airbasesStats.filter(base => base.name ===  e.target.dataset.carrier)
+		let carrierStats = this.state.aircraftCarriersStats.filter(aircraftCarrier => aircraftCarrier.name ===  e.target.dataset.carrier)
+
+		if (airBaseStats.length > 0){
+			console.log("Updating for AIRBASE", e.target.dataset.carrier, e.target.value)
+
+			let airbases = this.state.airbasesStats.map(airbase => {
+				if (airbase.name === e.target.dataset.carrier){
+					airbase.theoreticalInterceptionRate = e.target.value/100
+					return airbase
+				} else {
+					return airbase
+				}
+			})
+
+			this.setState({
+				airBaseStats: airbases
+			})
+		}
+
+		if (carrierStats.length > 0){
+			console.log("Updating for CARRIER", e.target.dataset.carrier, e.target.value)
+			let carriers = this.state.aircraftCarriersStats.map(carrier => {
+				if (carrier.name === e.target.dataset.carrier){
+					carrier.theoreticalInterceptionRate = e.target.value/100
+					return carrier
+				} else {
+					return carrier
+				}
+			})
+
+			this.setState({
+				aircraftCarriersStats: carriers
+			})
+		}
+	}
+
 	// AUTOMATIC FIRING SOLUTION
 
 	automateLaunch(){
@@ -2926,7 +2841,7 @@ export default class Earth extends Component {
 					const missileRange = parseFloat(this.state.selectedMissile.range);
 					return (detection.distanceKm <= missileRange);
 				})
-		console.log("Checking detection list", confirmedDetections, confirmedDetections.length)
+		// console.log("Checking detection list", confirmedDetections, confirmedDetections.length)
 
 		if (confirmedDetections.length > 0){
 			let carrierList = []
@@ -3509,6 +3424,7 @@ export default class Earth extends Component {
 
 							
 							let damageAssessment 
+							let interceptionRate 
 
 							// let damageStats = this.calculateTargetDamage(carrier.name)
 							// console.log("Damage Stats ", damageStats)
@@ -3523,6 +3439,7 @@ export default class Earth extends Component {
 								// // console.log("AIRBASE ", carrier.name, targetArea)
 								// damageAssessment = ((targetArea - warheadDamageArea)/targetArea)*100
 								damageAssessment = airBaseStats[0]['damageAssessment']
+								interceptionRate = airBaseStats[0]['theoreticalInterceptionRate']
 							}
 
 							if (carrierStats.length > 0){
@@ -3530,6 +3447,7 @@ export default class Earth extends Component {
 								// // console.log("CARRIER ", carrier.name, targetArea)
 								// damageAssessment = ((targetArea - warheadDamageArea)/targetArea)*100
 								damageAssessment = carrierStats[0]['damageAssessment']
+								interceptionRate = carrierStats[0]['theoreticalInterceptionRate']
 							}
 
 							// let thisCarrier = this.state.aircraftCarriersStats
@@ -3538,29 +3456,48 @@ export default class Earth extends Component {
 
 							return (
 
-								<div
+								<div className={styles.carrierStats}>
+									<div
 
-									key={index}
+										key={index}
 
-									className={`
-										${
-											damageAssessment > 0
-												? styles.carrierSelector
-												: styles.destroyedCarrier
+										className={`
+											${
+												damageAssessment > 0
+													? styles.carrierSelector
+													: styles.destroyedCarrier
+											}
+										`}
+
+										onClick={() =>
+											this.selectCarrier(index)
 										}
-									`}
+									>
 
-									onClick={() =>
-										this.selectCarrier(index)
-									}
-								>
+										<span> {carrier.name} </span>
 
-									<span> {carrier.name} </span>
+										<span className={styles.damageAssessment}>
+											{damageAssessment.toFixed(1)} %
+										</span>
 
-									<span className={styles.damageAssessment}>
-										{damageAssessment.toFixed(1)} %
-									</span>
+									</div>
+									<div className={styles.interceptionControl}>
+										<label>
+											Interception Rate
+										</label>
 
+										<input
+											type="number"
+											min="0"
+											max="100"
+											data-carrier={carrier.name}
+											className={styles.interceptionInput}
+											value={interceptionRate*100}
+											onChange={this.updateInterceptionRate}
+										/>
+
+										<span>%</span>
+									</div>
 								</div>
 
 							)

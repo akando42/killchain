@@ -79,7 +79,7 @@
 	position: absolute;
 	display: flex;
 	flex-direction: row;
-	bottom: 10vh;
+	bottom: 8vh;
 	width: 100vw;
 	align-items: center;
 	justify-content: center;
@@ -107,6 +107,17 @@
 
 .carrierSelector:active {
 	transform: scale(0.9);
+}
+
+.carrierStats {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	color: white;
+}
+
+.interceptionInput {
+	margin: 0 6px;
 }
 
 
