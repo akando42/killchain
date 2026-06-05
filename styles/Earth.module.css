@@ -280,6 +280,16 @@
 	top: 50vh;
 	z-index: 20;
 	width: 260px;
+	color: yellow;
+	display: flex;
+	flex-direction: column;
+}
+
+.defenseBudget {
+	font-size: 21px;
+	text-align: center;
+	padding: 0 24px;
+	font-weight: 700;
 }
 
 .missileSelector {

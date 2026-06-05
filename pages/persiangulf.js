@@ -93,7 +93,8 @@ export default class Earth extends Component {
 					warhead: 750,
 					damageAreaM2: 525000,
 					role: "Ballistic Strike",
-					count: 0
+					count: 0,
+					costUSD: 300000 
 				},
 				{
 					name: "Kheibar Shekan",
@@ -105,7 +106,8 @@ export default class Earth extends Component {
 					warhead: 600,
 					damageAreaM2: 420000,
 					role: "Precision Strike",
-					count: 0
+					count: 0,
+					costUSD: 1000000 
 				},
 				{
 					name: "Fattah2",
@@ -117,7 +119,8 @@ export default class Earth extends Component {
 					warhead: 450,
 					damageAreaM2: 315000,
 					role: "Hypersonic Penetration",
-					count: 0
+					count: 0,
+					costUSD: 4000000
 				},
 				{
 					name: "DF17",
@@ -129,7 +132,8 @@ export default class Earth extends Component {
 					warhead: 1000,
 					damageAreaM2: 700000,
 					role: "Hypersonic Glide",
-					count: 0
+					count: 0,
+					costUSD: 10000000
 				},
 				{
 					name: "DF21",
@@ -141,7 +145,8 @@ export default class Earth extends Component {
 					warhead: 600,
 					damageAreaM2: 420000,
 					role: "Carrier Killer",
-					count: 0
+					count: 0,
+					costUSD: 12000000
 				}
 			],
 
@@ -252,7 +257,9 @@ export default class Earth extends Component {
 					damageThresholdKg: 3200,
 					damageAssessment: 100
 				}
-			]
+			],
+
+			defenseBudget: 0
 		};
 
 		this.startEnvironment = this.startEnvironment.bind(this);
@@ -282,6 +289,8 @@ export default class Earth extends Component {
 		this.updateInterceptionRate = this.updateInterceptionRate.bind(this)
 
 		this.automateLaunch = this.automateLaunch.bind(this)
+
+		this.budgetDefense = this.budgetDefense.bind(this)
 	}
 
 	// =====================================================
@@ -2462,6 +2471,8 @@ export default class Earth extends Component {
 			return;
 		}
 
+		this.budgetDefense()
+
 		this.launchMissile({
 			name:missile.name,
 			launchTime: this.currentSimTime,
@@ -2890,6 +2901,16 @@ export default class Earth extends Component {
 		}
 	}
 
+	budgetDefense(){
+		let totalCost = 0
+
+		this.state.missiles.map(missile => {
+			let cost = missile.count * missile.costUSD
+			totalCost += cost
+			this.setState({ defenseBudget: totalCost })
+		})
+	}
+
 	// =====================================================
 	// LIFECYCLE
 	// =====================================================
@@ -2936,6 +2957,7 @@ export default class Earth extends Component {
 				{/* ================================= */}
 				
 				<div className={styles.missileSelectionPanel}>
+					<div>
 					{
 						this.state.missiles.map((missile, index) => {
 							return (
@@ -2960,6 +2982,20 @@ export default class Earth extends Component {
 							);
 						})
 					}
+					</div>
+
+					<div className={styles.defenseBudget}>
+						{
+							new Intl.NumberFormat(
+								'en-US',
+								{
+									style: 'currency',
+									currency: 'USD',
+									maximumFractionDigits: 0
+								}
+							).format(this.state.defenseBudget)
+						}
+					</div>
 				</div>
 
 				{/* ================================= */}
