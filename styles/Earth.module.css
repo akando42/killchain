@@ -249,29 +249,30 @@
 
 /* MISSILE SELECTION */
 
-.missileInfoPanel{
-
+.missileInfoPanel {
 	position: absolute;
-
 	top: 10vh;
-
 	left: 20px;
 
 	width: 260px;
-
 	background: rgba(0,0,0,0.75);
-
 	backdrop-filter: blur(10px);
 
 	border: 1px solid rgba(255,255,255,0.1);
-
 	border-radius: 12px;
-
 	padding: 14px;
-
 	color: white;
-
 	z-index: 20;
+
+}
+
+.addMissile {
+	position: absolute;
+	background-color: white;
+	color: black;
+	padding: 3px 6px;
+	bottom: 0;
+	right: 0;
 }
 
 .missileSelectionPanel {
@@ -304,7 +305,31 @@
 	position: relative;
 }
 
-.missileRecommendation {
+
+.startSim {
+	border: 1px solid yellow;
+	padding: 10px;
+	min-width: 10vw;
+	margin: 10px;
+	text-align: center;
+	font-weight: 700;
+	background-color: blue;
+	color: yellow;
+}
+
+.resetSim {
+	border: 1px solid yellow;
+	padding: 10px;
+	min-width: 10vw;
+	margin: 10px;
+	text-align: center;
+	font-weight: 700;
+	/*background-color: blue;*/
+	color: yellow;
+}
+
+
+.missileRecommendation, .missileFiringNotification {
 	background-color: rgba(1,1,1,0.3);
 	position: absolute;
 	top: 10vh;
@@ -327,6 +352,7 @@
 .recommendationEvent {
 	margin: 20px 0;
 	font-size: 16px;
+	line-height: 24px;
 }
 
 .missileSelection {

@@ -28,6 +28,8 @@ export default class Earth extends Component {
 
 			isDraggingTimeline: false,
 
+			simulationInProgress: false,
+
 			// =====================================
 			// ORBIT
 			// =====================================
@@ -181,6 +183,7 @@ export default class Earth extends Component {
 
 			detectionMessages: [],
 			detections: [],
+			launchEvents: [],
 
 			airbases: [
 				'Hatzor Airbase',
@@ -291,6 +294,12 @@ export default class Earth extends Component {
 		this.automateLaunch = this.automateLaunch.bind(this)
 
 		this.budgetDefense = this.budgetDefense.bind(this)
+
+		this.startSim = this.startSim.bind(this)
+
+		this.resetSim = this.resetSim.bind(this)
+
+		this.addMissile = this.addMissile.bind(this)
 	}
 
 	// =====================================================
@@ -539,6 +548,12 @@ export default class Earth extends Component {
 	// =====================================================
 
 	async startEnvironment(){
+
+		if (this.scene){
+			return;
+		}
+
+
 		this.targetTracks = {};
 		this.timeScale = 60; // real-time
 		this.activeMissiles = [];
@@ -1192,12 +1207,717 @@ export default class Earth extends Component {
 		// ANIMATION LOOP
 		// =====================================
 
-		const animate = () => {
+		// const animate = () => {
 
-			this.animationId =
-				requestAnimationFrame(
-					animate
-				);
+		// 	this.animationId =
+		// 		requestAnimationFrame(
+		// 			animate
+		// 		);
+
+		// 	let simTime;
+
+		// 	if (
+		// 		this.state
+		// 			.isDraggingTimeline
+		// 	){
+
+		// 		simTime =
+		// 			this.manualSimTime;			
+		// 	} else {
+
+		// 		const elapsedRealSeconds =
+		// 			(Date.now() -
+		// 			this.startTime) / 1000;
+
+		// 		// const simulatedMs =
+		// 		// 	elapsedRealSeconds *
+		// 		// 	this.simMinutesPerSecond *
+		// 		// 	60 *
+		// 		// 	1000;
+
+		// 		const simulatedMs =
+    	// 			elapsedRealSeconds *
+    	// 			this.timeScale *
+    	// 			1000;
+
+		// 		simTime =
+		// 			this.currentSimBaseTime +
+		// 			simulatedMs;
+		// 	}
+
+		// 	const simDate = new Date(simTime);
+		// 	this.currentSimTime = simTime;
+
+		// 	// =================================
+		// 	// REAL SUN POSITION FROM UTC
+		// 	// =================================
+
+		// 	// const utcHours =
+		// 	// 	simDate.getUTCHours() +
+		// 	// 	(simDate.getUTCMinutes() / 60) +
+		// 	// 	(simDate.getUTCSeconds() / 3600);
+
+		// 	// // Greenwich noon = Sun longitude 0°
+		// 	// const sunLonDeg =
+		// 	// 	(utcHours - 12) * 15;
+
+		// 	// const sunLonRad =
+		// 	// 	sunLonDeg * Math.PI / 180;
+
+		// 	// // Sun direction in ECI-like frame
+		// 	// const sunDistance = 10;
+
+		// 	// this.sun.position.set(
+		// 	// 	Math.cos(sunLonRad) * sunDistance,
+		// 	// 	0,
+		// 	// 	Math.sin(sunLonRad) * sunDistance
+		// 	// );
+
+		// 	// Sun fixed along +X
+		// 	this.sun.position.set(
+		// 	    10,
+		// 	    0,
+		// 	    0
+		// 	);
+
+		// 	const progress =
+		// 		(
+		// 			simTime -
+		// 			this.warStart.getTime()
+		// 		) /
+		// 		this.totalWarDuration;
+
+		// 	this.setState({
+
+		// 		timeT:
+		// 			simDate.toUTCString(),
+
+		// 		simProgress:
+		// 			progress
+		// 	});
+
+		// 	const t =
+		// 		(
+		// 			simTime -
+		// 			this.warStart.getTime()
+		// 		) / 1000;
+
+		// 	// =================================
+		// 	// EARTH ROTATION
+		// 	// =================================
+
+		// 	// this.earth.rotation.y = this.earthAngularVelocity * t;
+
+		// 	const greenwichOffset = THREE.MathUtils.degToRad(180);
+		// 	this.earth.rotation.y = greenwichOffset + this.earthAngularVelocity * t;
+			
+		// 	// this.earth.rotation.y  = 0
+
+		// 	// =================================
+		// 	// GEO SUPPORT
+		// 	// =================================
+
+		// 	let baseAngle;
+
+		// 	if (
+		// 		this.state.orbitPeriod ===
+		// 		1440
+		// 	){
+
+		// 		baseAngle =
+		// 			-this.earthAngularVelocity * t;
+
+		// 	} else {
+
+		// 		baseAngle =
+		// 			this.angularVelocity * t;
+		// 	}
+
+		// 	// =================================
+		// 	// MULTI CARRIERS
+		// 	// =================================
+
+		// 	this.carriers.forEach((carrier, index) => {
+
+		// 		// =============================
+		// 		// CARRIER POSITION
+		// 		// =============================
+
+		// 		const carrierPos =
+		// 			this.latLonToVector3(
+
+		// 				carrier.lat,
+
+		// 				carrier.lon,
+
+		// 				this.earthRadius +
+		// 				0.003
+		// 			);
+
+		// 		carrierPos.applyAxisAngle(
+
+		// 			new THREE.Vector3(0,1,0),
+
+		// 			this.earth.rotation.y
+		// 		);
+
+		// 		carrier.mesh.position.copy(
+		// 			carrierPos
+		// 		);
+
+		// 		carrier.mesh.lookAt(
+		// 			0,
+		// 			0,
+		// 			0
+		// 		);
+
+		// 		// =============================
+		// 		// STRIKE RING
+		// 		// =============================
+
+		// 		const ringPos =
+		// 			this.latLonToVector3(
+
+		// 				carrier.lat,
+
+		// 				carrier.lon,
+
+		// 				this.earthRadius +
+		// 				0.001
+		// 			);
+
+		// 		ringPos.applyAxisAngle(
+
+		// 			new THREE.Vector3(0,1,0),
+
+		// 			this.earth.rotation.y
+		// 		);
+
+		// 		carrier.strikeRing.position.copy(
+		// 			ringPos
+		// 		);
+
+		// 		carrier.strikeRing.lookAt(
+		// 			0,
+		// 			0,
+		// 			0
+		// 		);
+
+		// 		// =============================
+		// 		// DEFENSE RING
+		// 		// =============================
+
+		// 		carrier.defenseRing.position.copy(
+		// 			ringPos
+		// 		);
+
+		// 		carrier.defenseRing.lookAt(
+		// 			0,
+		// 			0,
+		// 			0
+		// 		);
+
+
+		// 		const isSelected =
+		// 			index ===
+		// 			this.state.selectedCarrierIndex;
+
+		// 		carrier.strikeRing.visible =
+		// 			isSelected;
+
+		// 		carrier.defenseRing.visible =
+		// 			isSelected;
+
+		// 		// =============================
+		// 		// PULSE EFFECT
+		// 		// =============================
+
+		// 		const pulse =
+		// 			1 +
+		// 			(Math.sin(
+		// 				(t * 0.004) +
+		// 				index
+		// 			) * 0.05);
+
+		// 		carrier.defenseRing.scale.set(
+
+		// 			pulse,
+
+		// 			pulse,
+
+		// 			pulse
+		// 		);
+		// 	});
+
+			
+		// 	// =================================
+		// 	// MISSILE CITY MARKERS
+		// 	// =================================
+
+		// 	this.missileCities.forEach((site) => {
+
+		// 		const pos =
+		// 			this.latLonToVector3(
+
+		// 				site.lat,
+
+		// 				site.lon,
+
+		// 				this.earthRadius +
+		// 				0.004
+		// 			);
+
+		// 		pos.applyAxisAngle(
+
+		// 			new THREE.Vector3(0,1,0),
+
+		// 			this.earth.rotation.y
+		// 		);
+
+		// 		site.mesh.position.copy(pos);
+
+		// 		site.mesh.lookAt(
+		// 			0,
+		// 			0,
+		// 			0
+		// 		);
+
+		// 		// slow pulse
+
+		// 		const pulse =
+		// 			1 +
+		// 			(Math.sin(t * 0.003) * 0.15);
+
+		// 		site.mesh.scale.set(
+
+		// 			pulse,
+
+		// 			pulse,
+
+		// 			pulse
+		// 		);
+		// 	});
+
+		// 	this.activeMissiles.forEach((missile) => {
+
+		// 		if (
+		// 			simTime <
+		// 			missile.launchTime
+		// 		){
+		// 			return;
+		// 		}
+
+		// 		missile.mesh.visible = true;
+
+		// 		const elapsed =
+		// 			simTime -
+		// 			missile.launchTime;
+
+		// 		let progress =
+		// 			elapsed /
+		// 			missile.flightDuration;
+
+		// 		progress =
+		// 			Math.min(
+		// 				Math.max(
+		// 					progress,
+		// 					0
+		// 				),
+		// 				1
+		// 			);
+
+		// 		const launchVec =
+		// 			this.latLonToVector3(
+
+		// 				missile.launchLat,
+
+		// 				missile.launchLon,
+
+		// 				this.earthRadius +
+		// 				0.01
+		// 			);
+
+		// 		const targetVec =
+		// 			this.latLonToVector3(
+
+		// 				missile.targetLat,
+
+		// 				missile.targetLon,
+
+		// 				this.earthRadius +
+		// 				0.01
+		// 			);
+
+		// 		launchVec.applyAxisAngle(
+
+		// 			new THREE.Vector3(
+		// 				0,
+		// 				1,
+		// 				0
+		// 			),
+
+		// 			this.earth.rotation.y
+		// 		);
+
+		// 		targetVec.applyAxisAngle(
+
+		// 			new THREE.Vector3(
+		// 				0,
+		// 				1,
+		// 				0
+		// 			),
+
+		// 			this.earth.rotation.y
+		// 		);
+
+		// 		const missilePos =
+		// 			new THREE.Vector3()
+		// 			.lerpVectors(
+
+		// 				launchVec,
+
+		// 				targetVec,
+
+		// 				progress
+		// 			);
+
+		// 		const arcHeight =
+		// 			Math.sin(
+		// 				Math.PI *
+		// 				progress
+		// 			) * 0.25;
+
+		// 		missilePos.normalize();
+
+		// 		missilePos.multiplyScalar(
+
+		// 			this.earthRadius +
+		// 			0.01 +
+		// 			arcHeight
+		// 		);
+
+		// 		missile.mesh.position.copy(
+		// 			missilePos
+		// 		);
+
+		// 		missile.mesh.lookAt(
+		// 			targetVec
+		// 		);
+
+		// 		missile.trailPoints.push(
+		// 			missilePos.clone()
+		// 		);
+
+		// 		if (
+		// 			missile.trailPoints.length >
+		// 			500
+		// 		){
+		// 			missile.trailPoints.shift();
+		// 		}
+
+		// 		missile.trailGeometry.setFromPoints(
+
+		// 			missile.trailPoints
+		// 		);
+
+		// 		if (
+		// 			progress >= 1
+		// 		){
+
+		// 			missile.mesh.visible =
+		// 				false;
+		// 		}
+		// 	});
+
+		// 	// =================================
+		// 	// MISSILE STRIKE RINGS
+		// 	// =================================
+
+		// 	this.missileStrikeRings.forEach((ringObj) => {
+
+		// 		const ringPos =
+		// 			this.latLonToVector3(
+
+		// 				ringObj.lat,
+		// 				ringObj.lon,
+
+		// 				this.earthRadius + 0.002
+		// 			);
+
+		// 		ringPos.applyAxisAngle(
+
+		// 			new THREE.Vector3(0,1,0),
+
+		// 			this.earth.rotation.y
+		// 		);
+
+		// 		ringObj.mesh.position.copy(
+		// 			ringPos
+		// 		);
+
+		// 		ringObj.mesh.lookAt(
+		// 			0,
+		// 			0,
+		// 			0
+		// 		);
+
+		// 		// pulse effect
+
+		// 		const pulse =
+		// 			1 +
+		// 			(Math.sin(t * 0.002) * 0.03);
+
+		// 		ringObj.mesh.scale.set(
+
+		// 			pulse,
+		// 			pulse,
+		// 			pulse
+		// 		);
+		// 	});
+
+		// 	// =================================
+		// 	// SATELLITES
+		// 	// =================================
+
+		// 	this.satellites.forEach((sat) => {
+
+		// 		const angle =
+		// 			baseAngle +
+		// 			sat.phase;
+
+		// 		let x =
+		// 			this.orbitRadius *
+		// 			Math.cos(angle);
+
+		// 		let y = 0;
+
+		// 		let z =
+		// 			this.orbitRadius *
+		// 			Math.sin(angle);
+
+		// 		// inclination
+
+		// 		const cosI =
+		// 			Math.cos(
+		// 				this.inclination
+		// 			);
+
+		// 		const sinI =
+		// 			Math.sin(
+		// 				this.inclination
+		// 			);
+
+		// 		let yInclined =
+		// 			y * cosI -
+		// 			z * sinI;
+
+		// 		let zInclined =
+		// 			y * sinI +
+		// 			z * cosI;
+
+		// 		// RAAN
+
+		// 		const cosR =
+		// 			Math.cos(
+		// 				sat.raan
+		// 			);
+
+		// 		const sinR =
+		// 			Math.sin(
+		// 				sat.raan
+		// 			);
+
+		// 		let xFinal =
+		// 			x * cosR -
+		// 			zInclined * sinR;
+
+		// 		let zFinal =
+		// 			x * sinR +
+		// 			zInclined * cosR;
+
+		// 		// SAT POSITION
+
+		// 		sat.mesh.position.set(
+
+		// 			xFinal,
+
+		// 			yInclined,
+
+		// 			zFinal
+		// 		);
+
+		// 		const direction =
+		// 			new THREE.Vector3(
+
+		// 				xFinal,
+
+		// 				yInclined,
+
+		// 				zFinal
+
+		// 			).normalize();
+
+		// 		// =================================
+		// 		// GEO FOOTPRINT
+		// 		// =================================
+
+		// 		if (
+		// 			this.state.orbitPeriod ===
+		// 			1440
+		// 		){
+
+		// 			const geoGroundPos =
+		// 				direction.multiplyScalar(
+
+		// 					this.earthRadius +
+		// 					0.002
+		// 				);
+
+		// 			sat.footprint.position.copy(
+		// 				geoGroundPos
+		// 			);
+
+		// 			sat.footprint.lookAt(
+		// 				0,
+		// 				0,
+		// 				0
+		// 			);
+
+		// 			const geoCoverageKm =
+		// 				18000;
+
+		// 			const geoScale =
+		// 				(geoCoverageKm / 6371) * 6;
+
+		// 			sat.footprint.scale.set(
+
+		// 				geoScale,
+
+		// 				geoScale,
+
+		// 				geoScale
+		// 			);
+
+		// 			sat.footprint.material.color.set(
+		// 				"yellow"
+		// 			);
+
+		// 			sat.footprint.material.opacity =
+		// 				0.10;
+
+		// 		} else {
+
+		// 			// =================================
+		// 			// LEO FOOTPRINT
+		// 			// =================================
+
+		// 			const groundPos =
+		// 				direction.multiplyScalar(
+
+		// 					this.earthRadius +
+		// 					0.001
+		// 				);
+
+		// 			sat.footprint.position.copy(
+		// 				groundPos
+		// 			);
+
+		// 			sat.footprint.lookAt(
+		// 				0,
+		// 				0,
+		// 				0
+		// 			);
+
+		// 			sat.footprint.scale.set(
+		// 				1,
+		// 				1,
+		// 				1
+		// 			);
+
+		// 			sat.footprint.material.color.set(
+		// 				this.state.satColor
+		// 			);
+
+		// 			sat.footprint.material.opacity =
+		// 				0.25;
+
+		// 			// =====================================
+		// 			// CARRIER DETECTION
+		// 			// =====================================
+
+		// 			this.carriers.forEach((carrier) => {
+
+		// 				// carrier ground position
+		// 				const carrierGroundPos =
+		// 					this.latLonToVector3(
+
+		// 						carrier.lat,
+		// 						carrier.lon,
+
+		// 						this.earthRadius +
+		// 						0.001
+		// 					);
+
+		// 				carrierGroundPos.applyAxisAngle(
+
+		// 					new THREE.Vector3(0,1,0),
+
+		// 					this.earth.rotation.y
+		// 				);
+
+		// 				// distance between sat footprint and carrier
+		// 				const dist =
+		// 					groundPos.distanceTo(
+		// 						carrierGroundPos
+		// 					);
+
+		// 				// detection threshold
+		// 				// adjust this value
+		// 				const detectionRadius = 0.08;
+
+		// 				if (dist < detectionRadius){
+		// 					const gmtTime =
+		// 						new Date(simTime)
+		// 						.toUTCString();
+
+		// 					let message = `
+		// 						[DETECTED] 
+		// 						${carrier.name} 
+		// 						${gmtTime}
+		// 						Lat ${carrier.lat}
+		// 						Lon ${carrier.lon}
+		// 							`;
+
+		// 					// console.log(message);
+
+		// 					this.updateTargetingData(
+		// 						message,
+		// 						gmtTime, 
+		// 						carrier.name,
+		// 						carrier.lat, 
+		// 						carrier.lon
+		// 					);
+		// 				}
+		// 			});
+		// 		}
+		// 	});
+
+		// 	this.controls.update();
+
+		// 	this.renderer.render(
+
+		// 		this.scene,
+
+		// 		this.camera
+		// 	);
+		// };
+
+		// animate();
+
+
+		// ANIMATION METHOD
+		this.animate = () => {
+			this.animationId = requestAnimationFrame(this.animate);
 
 			let simTime;
 
@@ -1895,9 +2615,9 @@ export default class Earth extends Component {
 
 				this.camera
 			);
-		};
+		}
 
-		animate();
+		this.animate();
 
 		// =====================================
 		// RESIZE
@@ -2301,7 +3021,7 @@ export default class Earth extends Component {
 	updateMissileCount(missileObj){
 		let missiles = this.state.missiles.map(missile => {
 			if (missileObj.name === missile.name){
-				missile.count += 1
+				missile.count -= 1
 				return missile
 			} else {
 				return missile
@@ -2457,33 +3177,38 @@ export default class Earth extends Component {
 		detection
 	){
 
-		const missile = this.state.missiles.find(
-			m => m.name === missileName);
+		console.log("Firing missile ", missileName)
 
-		this.selectMissile(missile)
-		this.updateMissileCount(missile)
+		const missile = this.state.missiles
+			.find(m => m.name === missileName);
 
-		
-		this.calculateTargetDamage(missile, detection.carrierName)
-		console.log("Targeting  ", detection.carrierName)
+		if (missile.count > 0){
+			this.selectMissile(missile)
+			this.updateMissileCount(missile)
 
-		if (!missile){
-			return;
+			
+			this.calculateTargetDamage(missile, detection.carrierName)
+			console.log("Targeting  ", detection.carrierName)
+
+			if (!missile){return;}
+
+			this.budgetDefense()
+
+			this.launchMissile({
+				name:missile.name,
+				launchTime: this.currentSimTime,
+				speedKmS: parseFloat(missile.speed),
+				rangeKm:parseFloat(missile.range),
+				launchLat: detection.launchSiteLat,
+				launchLon: detection.launchSiteLon,
+				targetLat: detection.carrierLat,
+				targetLon: detection.carrierLon,
+				color: "yellow"
+			});
+		} else {
+			console.log("Run out of missile type ", missileName)
 		}
-
-		this.budgetDefense()
-
-		this.launchMissile({
-			name:missile.name,
-			launchTime: this.currentSimTime,
-			speedKmS: parseFloat(missile.speed),
-			rangeKm:parseFloat(missile.range),
-			launchLat: detection.launchSiteLat,
-			launchLon: detection.launchSiteLon,
-			targetLat: detection.carrierLat,
-			targetLon: detection.carrierLon,
-			color: "yellow"
-		});
+		
 	}
 
 	// =====================================================
@@ -2829,6 +3554,23 @@ export default class Earth extends Component {
 
 	// AUTOMATIC FIRING SOLUTION
 
+	addMissile(event){
+		console.log("Adding Missile ", event.target.dataset.missile)
+
+		let updatedStockpile = this.state.missiles.map(missile => {
+			if (missile.name === event.target.dataset.missile){
+				missile.count += 1
+				return missile 
+			} else {
+				return missile 
+			}
+		})
+
+		this.setState({
+			missiles: updatedStockpile
+		})
+	}
+
 	automateLaunch(){
 		let confirmedDetections = this.state.detections.filter(
 				detection => {
@@ -2882,20 +3624,51 @@ export default class Earth extends Component {
 				})
 
 				console.log("Missiles ", HoangMissiles, target.recommendedMissiles)
-				let selectedMissile =  HoangMissiles.sort((a,b) => b.warhead > a.warhead)[0]
 
-				this.setState({ 
-					firedMissile: this.state.missiles.filter(missile => missile.name === selectedMissile)
-				})
+				let missileOptions = this.state.missiles.filter(
+					missile => HoangMissiles.includes(missile.name)
+				)
 
-				console.log(`Firing ${selectedMissile} at ${target.carrierName} at distance ${target.distanceKm}`)
+				console.log("Missile Options ", missileOptions)
 
-				// Checking target damage assessment before firing
-				let damagePercentage = this.damageAssessment(target.carrierName)
-				console.log(`Carrier ${target.carrierName}  ${damagePercentage}`)
+				let availMissiles = missileOptions
+					.filter(missile => missile.count > 0)
+					.sort((a,b) => b.warhead > a.warhead)
 
-				if (damagePercentage > 0){
-					this.fireRecommendedMissile(selectedMissile, target)		
+				if (availMissiles.length > 0){
+					let selectedMissile = availMissiles[0].name
+
+					this.setState({ 
+						firedMissile: this.state.missiles.filter(missile => missile.name === selectedMissile)
+					})
+
+					// Checking target damage assessment before firing
+					let damagePercentage = this.damageAssessment(target.carrierName)
+					console.log(`Carrier ${target.carrierName}  ${damagePercentage}`)
+
+					if (damagePercentage > 0){
+						let message = `
+							Firing ${selectedMissile} at ${target.carrierName} at distance 
+							${target.distanceKm} at coordinate ${target.lat} ${target.lon}
+						`
+						console.log(message)
+
+						this.setState({
+							launchEvents: [
+								{
+									missile: selectedMissile,
+									target: target,
+									message: message, 
+									time: this.currentSimTime
+								},
+								...this.state.launchEvents, 
+							]
+						})
+
+						this.fireRecommendedMissile(selectedMissile, target)		
+					}
+				} else {
+					console.log("Running out of Missiles")
 				}
 			})
 		}
@@ -2911,12 +3684,90 @@ export default class Earth extends Component {
 		})
 	}
 
+	// Start and Reset Environment
+
+	startSim(){
+		console.log("Starting Simulation")
+		this.setState({
+			simulationInProgress: true
+		})
+
+		if (this.animationId) {
+			return;
+		}
+
+		this.targetTracks = {};
+		this.activeMissiles = [];
+		this.currentSimBaseTime = this.warStart.getTime();
+
+		this.startTime = Date.now();
+		this.currentSimTime =this.warStart.getTime();
+
+		this.animate();
+	}
+
+	resetSim(){
+		console.log("Reset Simulation")
+
+		// this.pauseSim()
+		// this.setState({ simulationInProgress: false})
+
+		// // if (this.animationId) {
+		// // 	cancelAnimationFrame(
+		// // 		this.animationId
+		// // 	);
+		// // 	this.animationId = null;
+		// // }
+
+		// this.targetTracks = {};
+		// this.activeMissiles = [];
+
+		// this.currentSimBaseTime = this.warStart.getTime();
+		// this.currentSimTime = this.warStart.getTime();
+		// this.startTime = Date.now();
+
+		// // clear missile trails
+		// this.activeMissiles.forEach(missile => {
+		// 	missile.trailPoints = [];
+		// 	missile.trailGeometry.setFromPoints([]);
+		// });
+
+		// if (this.missileTrailGeometry) {
+		// 	this.missileTrailGeometry.setFromPoints([]);
+		// }
+
+		// this.setState({
+		// 	timeT:this.warStart.toUTCString(),
+		// 	simProgress: 0,
+		// 	targetingData: [],
+		// 	selectedCarrierIndex: 0,
+		// 	detectionMessages: [],
+		// 	detections: []
+		// });
+
+		// // render first frame immediately
+		// this.renderer.render( this.scene, this.camera);
+
+		window.location.reload()
+	}
+
+	pauseSim = () => {
+		if (this.animationId) {
+			cancelAnimationFrame(
+				this.animationId
+			);
+
+			this.animationId = null;
+		}
+	};
+
 	// =====================================================
 	// LIFECYCLE
 	// =====================================================
 
 	componentDidMount(){
 		this.startEnvironment();
+		this.pauseSim()
 
 		setInterval(() => {
 			this.automateLaunch()
@@ -2947,9 +3798,7 @@ export default class Earth extends Component {
 	// =====================================================
 
 	render(){
-
 		return (
-
 			<div className={styles.container}>
 
 				{/* ================================= */}
@@ -2984,6 +3833,7 @@ export default class Earth extends Component {
 					}
 					</div>
 
+					{/** 
 					<div className={styles.defenseBudget}>
 						{
 							new Intl.NumberFormat(
@@ -2996,6 +3846,24 @@ export default class Earth extends Component {
 							).format(this.state.defenseBudget)
 						}
 					</div>
+					**/}
+
+					{
+						this.state.simulationInProgress
+						?	<div 
+								className={styles.resetSim}
+								onClick={this.resetSim}
+							>
+								Reset Simulation
+							</div>
+
+						:   <div 
+								className={styles.startSim}
+								onClick={this.startSim}
+							> 
+								Start Simulation 
+							</div>
+					}
 				</div>
 
 				{/* ================================= */}
@@ -3021,96 +3889,55 @@ export default class Earth extends Component {
 							styles.satName
 						}
 					>
-
-						{
-							this.state
-							.selectedMissile
-							.name
-						}
+						{ this.state.selectedMissile.name }
 
 					</div>
 
 					<div
-						className={
-							styles.satSpec
-						}
+						className={ styles.satSpec}
 					>
-
 						<div>
-
 							<span>Type:</span>
-
-							{
-								this.state
-								.selectedMissile
-								.type
-							}
-
+							{ this.state.selectedMissile.type }
 						</div>
 
 						<div>
-
 							<span>Speed:</span>
-
-							{
-								this.state
-								.selectedMissile
-								.speed
-							}
-
+							{ this.state.selectedMissile.speed }
 						</div>
 
 						<div>
-
 							<span>Range:</span>
-
-							{
-								this.state
-								.selectedMissile
-								.range
-							}
-
+							{ this.state.selectedMissile.range }
 						</div>
 
 						<div>
-
 							<span>Guidance:</span>
-
-							{
-								this.state
-								.selectedMissile
-								.homing
-							}
-
+							{ this.state.selectedMissile.homing }
 						</div>
 
 						<div>
-
 							<span>Warhead:</span>
-
-							{
-								this.state
-								.selectedMissile
-								.warhead
-							}
+							{ this.state.selectedMissile.warhead }
 
 						</div>
 
 						<div>
-
 							<span>Role:</span>
-
-							{
-								this.state
-								.selectedMissile
-								.role
-							}
-
+							{ this.state.selectedMissile.role}
 						</div>
+					</div>
 
+					<div 
+						className={styles.addMissile}
+						onClick={this.addMissile}
+						data-missile={this.state.selectedMissile.name}
+					> 
+						+ Add 
 					</div>
 				</div>
 
+				{/** 
 				<div className={styles.missileRecommendation}>
 					{
 						this.state.detections.filter(
@@ -3174,6 +4001,34 @@ export default class Earth extends Component {
 							})
 					}
 				</div>
+				**/}
+			
+				<div className={styles.missileFiringNotification}>
+					{
+						this.state.launchEvents.map(launch => {
+							let launchTime = new Date(launch.time).toUTCString()
+							console.log(launchTime)
+
+							return (
+								<div className={styles.recommendationEvent}>
+									<div> {launchTime} </div>
+									Firing <span className={styles.missileSelection}> {launch.missile}</span> 
+									at <span className={styles.missileSelection}>{launch.target.carrierName}</span> 
+									at distance <span className={styles.coordinateSelection}>
+										{launch.target.distanceKm} km
+									</span> and coordinate 
+									<div className={styles.coordinateSelection}>
+										{launch.target.carrierLat}
+									</div>
+									<div className={styles.coordinateSelection}>
+										{launch.target.carrierLon}
+									</div>
+								</div>
+							)
+						})
+					}
+				</div>
+				
 
 				<div
 
@@ -3542,7 +4397,6 @@ export default class Earth extends Component {
 						})
 					}
 				</div>
-
 			</div>
 		);
 	}

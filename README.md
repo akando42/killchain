@@ -86,3 +86,11 @@ Range from Target to Missile City is smaller than Missile Range
 [X] Automate Missile Launch at Carriers and Airbases detection coordinate after Detection Until Target Fully Neutralized
 
 [X] Data Toggle for Interception rate for Total Missiles Needed of each type and maybe total budget
+
+[X] Start and Reset Environment Simulation Button
+
+[X] Adding Missile Stockpile of Each Types 
+
+[X] Automated Firing Missiles while Drawing down Missile Stockpile
+
+[X] Updating Notification List with Firing Messages 
