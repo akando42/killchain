@@ -28,7 +28,7 @@ export default class Earth extends Component {
 
 			isDraggingTimeline: false,
 
-			simulationInProgress: false,
+			simulationInProgress: true,
 
 			// =====================================
 			// ORBIT
@@ -3767,7 +3767,7 @@ export default class Earth extends Component {
 
 	componentDidMount(){
 		this.startEnvironment();
-		this.pauseSim()
+		// this.pauseSim()
 
 		setInterval(() => {
 			this.automateLaunch()
