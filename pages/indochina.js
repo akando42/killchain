@@ -11,10 +11,21 @@ export default class Indochina extends Component {
 		this.simRef = createRef()
 
 		this.state = {
-			orbitPeriod: 96
+			orbitPeriod: 96, 
+			missileSites:  [
+				{lat: 11.670133253474399 , lon: 108.48093101445289}, 
+				{lat: 21.105600053707754, lon: 106.5671037381583},
+				{lat: 0, lon: 0}
+			], 
+			newSiteLat: 0,
+			newSiteLon: 0
 		}
 
 		this.startEnvironment = this.startEnvironment.bind(this)
+
+		this.setSiteLat = this.setSiteLat.bind(this)
+		this.setSiteLon = this.setSiteLon.bind(this)
+		this.addNewSite = this.addNewSite.bind(this)
 
 	}
 
@@ -146,10 +157,7 @@ export default class Indochina extends Component {
 		this.missileCities = []
 		this.missileStrikeRings = [];
 
-		let missileSites = [
-			{lat: 11.670133253474399 , lon: 108.48093101445289}, 
-			{lat: 21.105600053707754, lon: 106.5671037381583}
-		]
+		let missileSites = this.state.missileSites
 
 		// CREATE MISSILE SITE MARKER
 		missileSites.forEach((site) => {
@@ -298,6 +306,31 @@ export default class Indochina extends Component {
 		animate()
 	}
 
+	async setSiteLat(e){
+		this.setState({
+			newSiteLat: e.target.value
+		})
+
+	}
+
+	async setSiteLon(e){
+		this.setState({
+			newSiteLon: e.target.value
+		})
+	}
+
+	async addNewSite(){
+		let missileSites = this.state.missileSites
+		this.setState({
+			missileSites: [...missileSites, {
+				lat: this.state.newSiteLat, 
+				lon: this.state.newSiteLon
+			}]
+		})
+
+		this.startEnvironment()
+	}
+
 	componentDidMount(){
 		this.startEnvironment()
 	}
@@ -331,6 +364,29 @@ export default class Indochina extends Component {
 					ref={this.simRef}
 					className={styles.satSim}
 				/>
+
+				<div className={styles.controlPanel}>
+					<div className={styles.addLocation}>
+						<input 
+							className={styles.siteLat} 
+							onChange={this.setSiteLat}
+							value={this.state.newSiteLat}
+						/>
+
+						<input 
+							className={styles.siteLon} 
+							onChange={this.setSiteLon}
+							value={this.state.newSiteLon}
+						/>
+
+						<div 
+							className={styles.siteAdd}
+							onClick={this.addNewSite}
+						>
+							Add Location
+						</div>
+					</div>
+				</div>
 			</div>
 		)
 	}

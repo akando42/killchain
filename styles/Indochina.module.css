@@ -18,7 +18,6 @@
 .infoPanel {
 	position: absolute;
 	z-index: 10;
-	background-color: blue;
 	top: 0;
 	left: 0;
 	height: 6vh;
@@ -28,4 +27,46 @@
 	align-items: center;
 	justify-content: center;
 	font-size: 21px;
+	color: white;
+	/*background-color: blue;*/
+}
+
+.controlPanel {
+	position: absolute;
+	z-index: 10;
+	width: 100vw;
+	height: 100vh;
+	/*opacity: 0%;*/
+	pointer-events: none;
+	background-color: rgba(0, 0, 0, 0);
+	top: 6vh;
+	left: 0;
+	display: flex;
+	flex-direction: row;
+}
+
+.addLocation {
+	padding: 6vh 0;
+	width: 20vw;
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: center;
+}
+
+.siteLat, .siteLon, .siteAdd {
+	width: 12vw;
+	height: 4vh;
+	border: 2px solid white;
+	color: white;
+	margin: 10px ;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	border-radius: 6px;
+	padding: 0 10px;
+	font-weight: 700;
+	pointer-events: auto;
 }
