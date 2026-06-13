@@ -13,9 +13,8 @@ export default class Indochina extends Component {
 		this.state = {
 			orbitPeriod: 96, 
 			missileSites:  [
-				{lat: 11.670133253474399 , lon: 108.48093101445289}, 
-				{lat: 21.105600053707754, lon: 106.5671037381583},
-				{lat: 0, lon: 0}
+				// {lat: 11.670133253474399 , lon: 108.48093101445289}
+				// // {lat: 21.105600053707754, lon: 106.5671037381583}
 			], 
 			newSiteLat: 0,
 			newSiteLon: 0
@@ -26,7 +25,6 @@ export default class Indochina extends Component {
 		this.setSiteLat = this.setSiteLat.bind(this)
 		this.setSiteLon = this.setSiteLon.bind(this)
 		this.addNewSite = this.addNewSite.bind(this)
-
 	}
 
 	latLonToVector3(lat, lon, radius){
@@ -257,7 +255,7 @@ export default class Indochina extends Component {
 			});
 
 			// =================================
-			// MISSILE STRIKE RINGS
+			// ANIMATE MISSILE STRIKE RINGS
 			// =================================
 
 			this.missileStrikeRings.forEach((ringObj) => {
@@ -306,11 +304,45 @@ export default class Indochina extends Component {
 		animate()
 	}
 
+	async createMissileCity(city){
+		console.log("Creating Missile City at ", city.lat, city.lon)
+
+		const triangleShape = new THREE.Shape()
+
+		triangleShape.moveTo(0, 0.010/3)
+		triangleShape.lineTo(-0.008/3, -0.008/3)
+		triangleShape.lineTo(0.008/3, -0.008/3)
+		triangleShape.lineTo(0, 0.010/3)
+
+		const geometry = new THREE.ShapeGeometry(triangleShape);
+		const material = new THREE.MeshBasicMaterial({
+			color: "yellow",
+			side: THREE.DoubleSide
+		});
+
+		const marker = new THREE.Mesh(geometry,material);
+		this.scene.add(marker);
+
+		console.log("Missile Cities ", this.missileCities)
+
+		this.missileCities.push({
+			mesh: marker,
+			lat: parseFloat(city.lat),
+			lon: parseFloat(city.lon)
+		});
+
+		this.createMissileStrikeRing({
+			lat: parseFloat(city.lat),
+			lon: parseFloat(city.lon),
+			rangeKm: 1000,
+			color: "yellow"
+		});
+	}
+
 	async setSiteLat(e){
 		this.setState({
 			newSiteLat: e.target.value
 		})
-
 	}
 
 	async setSiteLon(e){
@@ -321,14 +353,36 @@ export default class Indochina extends Component {
 
 	async addNewSite(){
 		let missileSites = this.state.missileSites
+
 		this.setState({
 			missileSites: [...missileSites, {
 				lat: this.state.newSiteLat, 
 				lon: this.state.newSiteLon
 			}]
-		})
+		}, () => {
+			// Remove all missile cities
+			console.log("Remove Missile Cities")
+			if (this.missileCities){
+				this.missileCities.forEach(city => {
+					this.scene.remove(city.mesh)
+					this.scene.remove(city.footprint)
+				})
+			}
 
-		this.startEnvironment()
+			// Remove all missile cities animation
+			console.log("Remove Missile Strike Rings")
+			if (this.missileStrikeRings){
+				this.missileStrikeRings.forEach( strikeRing => {
+					this.scene.remove(strikeRing.mesh)
+					this.scene.remove(strikeRing.mesh)
+				})
+			}
+
+			// Recreate new set of Missile sites
+			this.state.missileSites.map(missileCity => {
+				this.createMissileCity(missileCity)
+			})
+		})
 	}
 
 	componentDidMount(){
@@ -360,6 +414,7 @@ export default class Indochina extends Component {
 				<div className={styles.infoPanel}>
 					Indochina
 				</div>
+
 				<div
 					ref={this.simRef}
 					className={styles.satSim}
