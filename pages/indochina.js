@@ -12,12 +12,27 @@ export default class Indochina extends Component {
 
 		this.state = {
 			orbitPeriod: 96, 
+			inclination: 97.7,
+			altitude: 0.089,
+
 			missileSites:  [
 				// {lat: 11.670133253474399 , lon: 108.48093101445289}
 				// // {lat: 21.105600053707754, lon: 106.5671037381583}
 			], 
+			satellites: [],
+			orbitLines: [],
+
 			newSiteLat: 0,
-			newSiteLon: 0
+			newSiteLon: 0,
+
+			newSatPlanes: 10,
+			newSatsPerPlane: 1,
+			newTargetingRAAN: 80,
+			newSpread: 30,
+
+			satSize: 0.006,
+			satColor: "yellow"
+
 		}
 
 		this.startEnvironment = this.startEnvironment.bind(this)
@@ -25,6 +40,13 @@ export default class Indochina extends Component {
 		this.setSiteLat = this.setSiteLat.bind(this)
 		this.setSiteLon = this.setSiteLon.bind(this)
 		this.addNewSite = this.addNewSite.bind(this)
+
+		this.setSatPlanes = this.setSatPlanes.bind(this)
+		this.setSatsPerPlane = this.setSatsPerPlane.bind(this)
+		this.setTargetingRAAN = this.setTargetingRAAN.bind(this)
+		this.setSpread = this.setSpread.bind(this)
+
+		this.createConstellation = this.createConstellation.bind(this)
 	}
 
 	latLonToVector3(lat, lon, radius){
@@ -39,7 +61,6 @@ export default class Indochina extends Component {
 
 		return new THREE.Vector3(x,y,z);
 	}
-
 
 	// =====================================================
 	// DMS TO DECIMAL
@@ -61,31 +82,6 @@ export default class Indochina extends Component {
 		}
 
 		return dec;
-	}
-
-	// =====================================================
-	// CREATE MISSILE STRIKE CIRCLE
-	// =====================================================
-
-	createMissileStrikeRing({
-		lat,
-		lon,
-		rangeKm = 1450,
-		color = "yellow"
-	}){
-		const radius = (rangeKm / 6371);
-		const ring = new THREE.Mesh(
-			new THREE.RingGeometry(radius, radius + 0.003, 128),
-			new THREE.MeshBasicMaterial({
-				color,
-				side:THREE.DoubleSide,
-				transparent: true,
-				opacity: 0.25
-			})
-		);
-
-		this.scene.add(ring);
-		this.missileStrikeRings.push({ lat, lon, mesh: ring});
 	}
 
 	async startEnvironment(){
@@ -145,11 +141,17 @@ export default class Indochina extends Component {
 
 		// ORBIT PARAM
 		this.earthRadius = 1;
+		this.orbitRadius = this.earthRadius + this.state.altitude
 		this.orbitPeriod = this.state.orbitPeriod
-		this.earthAngularVelocity = (2 * Math.PI) / (24 * 3600)
+		this.inclination = this.state.inclination * Math.PI / 180
 
+		this.earthAngularVelocity = (2 * Math.PI) / (24 * 3600)
+		this.angularVelocity = (2 * Math.PI) / (this.orbitPeriod * 60)
+		
 		// PIG still try to LIGHT propaganda ???
 		// FUCK OFF PIG
+
+		// PIGs are still Making NOISEs and COMMENT like a bunch of little VPigs
 
 		// MISSILE CITIES
 		this.missileCities = []
@@ -208,8 +210,13 @@ export default class Indochina extends Component {
 			});
 		});
 
-		const animate = () => {
+		// CREATE SATELLITES
+		this.satellites = this.state.satellites
+		this.orbitLines = this.state.orbitLines
 
+		this.createConstellation()
+
+		const animate = () => {
 			this.animationId = requestAnimationFrame(animate)
 			
 			let currentTime = new Date()
@@ -223,14 +230,10 @@ export default class Indochina extends Component {
 			// Sun fixed along +X
 			this.sun.position.set(10,0,0);
 
-			// this.controls.update()
-
-			this.renderer.render(
-				this.scene,
-				this.camera
-			)
-
+			
+			// =================================
 			// Animate Missile City Marker 
+			// =================================
 			this.missileCities.forEach((site) => {
 
 				const pos = this.latLonToVector3(site.lat, site.lon, this.earthRadius + 0.004);
@@ -257,7 +260,6 @@ export default class Indochina extends Component {
 			// =================================
 			// ANIMATE MISSILE STRIKE RINGS
 			// =================================
-
 			this.missileStrikeRings.forEach((ringObj) => {
 
 				const ringPos =
@@ -299,10 +301,197 @@ export default class Indochina extends Component {
 					pulse
 				);
 			});
+
+			let baseAngle
+			if(this.state.orbitPeriod === 1440){
+				baseAngle = - this.angularVelocity * t
+			} else {
+				baseAngle = this.angularVelocity * t
+			}
+
+			// =================================
+			// ANIMATE SATELLITE ORBIT
+			// =================================
+			this.satellites.forEach((sat) => {
+				const angle = baseAngle + sat.phase
+				let x = this.orbitRadius * Math.cos(angle)
+				let y = 0
+				let z = this.orbitRadius * Math.sin(angle)
+
+				// INCLINATION
+				const cosI = Math.cos(this.inclination)
+				const sinI = Math.sin(this.inclination)
+				let yInclined = y * cosI - z * sinI
+				let zInclined = y * sinI - z * cosI
+
+				// RANN
+				const cosR = Math.cos(sat.raan)
+				const sinR = Math.sin(sat.raan)
+
+				let xFinal = x * cosR - zInclined * sinR
+				let zFinal = x * sinR + zInclined * cosR
+
+				// console.log("Sat ", angle, xFinal, yInclined, zFinal)
+				sat.mesh.position.set(xFinal, yInclined, zFinal)
+				const direction = new THREE.Vector3(xFinal, yInclined, zFinal).normalize()
+
+				// =================================
+				// ANIMATE SATELLITE FOOTPRINT
+				// =================================
+
+				if (
+					this.state.orbitPeriod ===
+					1440
+				){
+
+					const geoGroundPos =
+						direction.multiplyScalar(
+
+							this.earthRadius +
+							0.002
+						);
+
+					sat.footprint.position.copy(
+						geoGroundPos
+					);
+
+					sat.footprint.lookAt(
+						0,
+						0,
+						0
+					);
+
+					const geoCoverageKm =
+						18000;
+
+					const geoScale =
+						(geoCoverageKm / 6371) * 6;
+
+					sat.footprint.scale.set(
+
+						geoScale,
+
+						geoScale,
+
+						geoScale
+					);
+
+					sat.footprint.material.color.set(
+						"yellow"
+					);
+
+					sat.footprint.material.opacity =
+						0.10;
+
+				} else {
+
+					// =================================
+					// LEO FOOTPRINT
+					// =================================
+
+					const groundPos =
+						direction.multiplyScalar(
+
+							this.earthRadius +
+							0.001
+						);
+
+					sat.footprint.position.copy(
+						groundPos
+					);
+
+					sat.footprint.lookAt(
+						0,
+						0,
+						0
+					);
+
+					sat.footprint.scale.set(
+						1,
+						1,
+						1
+					);
+
+					sat.footprint.material.color.set(
+						this.state.satColor
+					);
+
+					sat.footprint.material.opacity =
+						0.25;
+
+					// =====================================
+					// CARRIER DETECTION
+					// =====================================
+
+					// this.carriers.forEach((carrier) => {
+
+					// 	// carrier ground position
+					// 	const carrierGroundPos =
+					// 		this.latLonToVector3(
+
+					// 			carrier.lat,
+					// 			carrier.lon,
+
+					// 			this.earthRadius +
+					// 			0.001
+					// 		);
+
+					// 	carrierGroundPos.applyAxisAngle(
+
+					// 		new THREE.Vector3(0,1,0),
+
+					// 		this.earth.rotation.y
+					// 	);
+
+					// 	// distance between sat footprint and carrier
+					// 	const dist =
+					// 		groundPos.distanceTo(
+					// 			carrierGroundPos
+					// 		);
+
+					// 	// detection threshold
+					// 	// adjust this value
+					// 	const detectionRadius = 0.08;
+
+					// 	if (dist < detectionRadius){
+					// 		const gmtTime =
+					// 			new Date(simTime)
+					// 			.toUTCString();
+
+					// 		let message = `
+					// 			[DETECTED] 
+					// 			${carrier.name} 
+					// 			${gmtTime}
+					// 			Lat ${carrier.lat}
+					// 			Lon ${carrier.lon}
+					// 				`;
+
+					// 		// console.log(message);
+
+					// 		this.updateTargetingData(
+					// 			message,
+					// 			gmtTime, 
+					// 			carrier.name,
+					// 			carrier.lat, 
+					// 			carrier.lon
+					// 		);
+					// 	}
+					// });
+				}
+
+			})
+
+			this.controls.update()
+			this.renderer.render(
+				this.scene,
+				this.camera
+			)
 		}
 
 		animate()
 	}
+
+	// CREATE MISSILE CITY and STRIKE RING 
 
 	async createMissileCity(city){
 		console.log("Creating Missile City at ", city.lat, city.lon)
@@ -337,6 +526,27 @@ export default class Indochina extends Component {
 			rangeKm: 1000,
 			color: "yellow"
 		});
+	}
+
+	createMissileStrikeRing({
+		lat,
+		lon,
+		rangeKm = 1450,
+		color = "yellow"
+	}){
+		const radius = (rangeKm / 6371);
+		const ring = new THREE.Mesh(
+			new THREE.RingGeometry(radius, radius + 0.003, 128),
+			new THREE.MeshBasicMaterial({
+				color,
+				side:THREE.DoubleSide,
+				transparent: true,
+				opacity: 0.25
+			})
+		);
+
+		this.scene.add(ring);
+		this.missileStrikeRings.push({ lat, lon, mesh: ring});
 	}
 
 	async setSiteLat(e){
@@ -385,28 +595,145 @@ export default class Indochina extends Component {
 		})
 	}
 
+	// CREATE SATELLITE CONSTELLATION
+
+	async setSatPlanes(e){
+		this.setState({
+			newSatPlanes: e.target.value
+		})
+	}
+
+	async setSatsPerPlane(e){
+		this.setState({
+			newSatsPerPlane: e.target.value
+		})
+	}
+
+	async setTargetingRAAN(e){
+		this.setState({
+			newTargetingRAAN: e.target.value
+		})
+	}
+
+	async setSpread(e){
+		this.setState({
+			newSpread: e.target.value
+		})
+	}
+
+	addSatellite({sats = 1, raan = 0}){
+		for (let i = 0; i < sats; i++){
+			
+			const phase = (2* Math.PI/sats)*i
+
+			// SATELLITE
+			const sat = new THREE.Mesh(
+				new THREE.SphereGeometry(this.state.satSize, 12, 12),
+				new THREE.MeshBasicMaterial({ color: this.state.satColor})
+			)
+			this.scene.add(sat)
+
+			console.log("Adding Satellite ", i, phase, raan)
+
+			// ADD SATELLITE FOOTPRINT
+			const footprint = new THREE.Mesh(
+				new THREE.CircleGeometry(0.035, 64),
+				new THREE.MeshBasicMaterial({
+					color: this.state.satColor,
+					transparent: true,
+					opacity: 0.25,
+					side: THREE.DoubleSide
+				})
+			)
+
+			this.scene.add(footprint)
+
+			this.satellites.push({
+				mesh: sat,
+				phase,
+				raan,
+				footprint
+			})
+		}	
+	}
+
+	createConstellation(){
+		if (this.satellites){
+			this.satellites.forEach((sat) => {
+				this.scene.remove(sat.mesh)
+				this.scene.remove(sat.footprint)
+			})
+		}
+
+		if (this.orbitLines){
+			this.orbitLines.forEach((line) => {
+				this.scene.remove(line)
+			})
+		}
+
+		// this.satellites = this.state.satellites
+		// this.orbitLines = this.state.orbitLines
+
+		console.log(
+			"CREATING NEW CONSTELLATION", 
+			this.state.newSatPlanes,
+			this.state.newSatsPerPlane,
+			this.state.newTargetingRAAN,
+			this.state.newSpread
+		)
+
+		const numberOfPlanes = this.state.newSatPlanes
+		console.log("Number of PLANE ", numberOfPlanes)
+
+		const satsPerPlane = this.state.newSatsPerPlane
+		console.log("SATs per PLANE ", satsPerPlane)
+
+		const targetingRAAN = - this.state.newTargetingRAAN * Math.PI / 180
+		console.log("RANN ", targetingRAAN)
+
+		const spread = this.state.newSpread * Math.PI / 180
+		console.log("SPREAD ", spread)
+
+		for (let p = 0; p < numberOfPlanes; p++){
+			console.log("Plane ",p)
+			let raan
+
+			if (numberOfPlanes == 1){
+				raan = targetingRAAN
+			} else {
+				const offset = (p/(numberOfPlanes -1)) - 0.5
+				raan = targetingRAAN + offset * spread
+			}
+
+			this.addSatellite({
+				sats: satsPerPlane,
+				raan
+			})
+		}
+	}
+
+
 	componentDidMount(){
 		this.startEnvironment()
 	}
 
-	// componentWillUnmount(){
-	// 	cancelAnimationFrame(
-	// 		this.animationId
-	// 	);
+	componentWillUnmount(){
+		cancelAnimationFrame(
+			this.animationId
+		);
 
-	// 	window.removeEventListener(
+		window.removeEventListener(
 
-	// 		"resize",
+			"resize",
 
-	// 		this.handleResize
-	// 	);
+			this.handleResize
+		);
 
-	// 	if (this.renderer){
+		if (this.renderer){
 
-	// 		this.renderer.dispose();
-	// 	}
-	// }
-
+			this.renderer.dispose();
+		}
+	}
 
 	render(){
 		return (
@@ -438,7 +765,42 @@ export default class Indochina extends Component {
 							className={styles.siteAdd}
 							onClick={this.addNewSite}
 						>
-							Add Location
+							Add Missile Battery
+						</div>
+					</div>
+
+					<div className={styles.addSatellite}>
+						<input 
+							className={styles.satParam} 
+							onChange={this.setSatPlanes}
+							value={this.state.newSatPlanes}
+							type="Float"
+							placeholder="Satellites per Plane"
+						/>
+
+						<input 
+							className={styles.satParam} 
+							onChange={this.setSatsPerPlane}
+							value={this.state.newSatsPerPlane}
+						/>
+
+						<input 
+							className={styles.satParam} 
+							onChange={this.setTargetingRAAN}
+							value={this.state.newTargetingRAAN}
+						/>
+
+						<input 
+							className={styles.satParam} 
+							onChange={this.setSpread}
+							value={this.state.newSpread}
+						/>
+
+						<div 
+							className={styles.siteAdd}
+							onClick={this.createConstellation}
+						>
+							Add Satellite Constellation
 						</div>
 					</div>
 				</div>

@@ -369,8 +369,7 @@ export default class Earth extends Component {
 
 		for (let i = 0; i < sats; i++){
 
-			const phase =
-				(2 * Math.PI / sats) * i;
+			const phase = (2 * Math.PI / sats) * i;
 
 			// =================================
 			// SATELLITE

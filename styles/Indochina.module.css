@@ -28,34 +28,33 @@
 	justify-content: center;
 	font-size: 21px;
 	color: white;
-	/*background-color: blue;*/
 }
 
 .controlPanel {
 	position: absolute;
-	z-index: 10;
+	z-index: 20;
 	width: 100vw;
 	height: 100vh;
-	/*opacity: 0%;*/
 	pointer-events: none;
 	background-color: rgba(0, 0, 0, 0);
-	top: 6vh;
+	top: 0;
 	left: 0;
 	display: flex;
-	flex-direction: row;
+	flex-direction: column;
+	justify-content: center;
 }
 
-.addLocation {
-	padding: 6vh 0;
+.addLocation, .addSatellite {
+	/*padding: 6vh 0;*/
 	width: 20vw;
-	height: 100vh;
+	height: auto;
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-start;
 	align-items: center;
 }
 
-.siteLat, .siteLon, .siteAdd {
+.siteLat, .siteLon, .siteAdd, .satParam {
 	width: 12vw;
 	height: 4vh;
 	border: 2px solid white;
@@ -70,3 +69,5 @@
 	font-weight: 700;
 	pointer-events: auto;
 }
+
+
