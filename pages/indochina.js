@@ -11,20 +11,23 @@ export default class Indochina extends Component {
 		this.simRef = createRef()
 
 		this.state = {
-			orbitPeriod: 96, 
-			inclination: 97.7,
-			altitude: 0.089,
-
 			missileSites:  [
 				// {lat: 11.670133253474399 , lon: 108.48093101445289}
 				// // {lat: 21.105600053707754, lon: 106.5671037381583}
 			], 
-			satellites: [],
-			orbitLines: [],
-
+			missileRange: 300,
 			newSiteLat: 0,
 			newSiteLon: 0,
 
+
+			orbitPeriod: 96, 
+			inclination: 97.7,
+			altitude: 0.089,
+
+			satellites: [],
+			orbitLines: [],
+
+			
 			newSatPlanes: 10,
 			newSatsPerPlane: 1,
 			newTargetingRAAN: 80,
@@ -39,6 +42,7 @@ export default class Indochina extends Component {
 
 		this.setSiteLat = this.setSiteLat.bind(this)
 		this.setSiteLon = this.setSiteLon.bind(this)
+		this.setMissileRange = this.setMissileRange.bind(this)
 		this.addNewSite = this.addNewSite.bind(this)
 
 		this.setSatPlanes = this.setSatPlanes.bind(this)
@@ -205,7 +209,7 @@ export default class Indochina extends Component {
 			this.createMissileStrikeRing({
 				lat: site.lat,
 				lon: site.lon,
-				rangeKm: 1000,
+				rangeKm: this.state.missileRange,
 				color: "yellow"
 			});
 		});
@@ -523,7 +527,7 @@ export default class Indochina extends Component {
 		this.createMissileStrikeRing({
 			lat: parseFloat(city.lat),
 			lon: parseFloat(city.lon),
-			rangeKm: 1000,
+			rangeKm: this.state.missileRange,
 			color: "yellow"
 		});
 	}
@@ -534,6 +538,7 @@ export default class Indochina extends Component {
 		rangeKm = 1450,
 		color = "yellow"
 	}){
+		console.log("Create Missile Strike Range ", lat, lon, rangeKm, color)
 		const radius = (rangeKm / 6371);
 		const ring = new THREE.Mesh(
 			new THREE.RingGeometry(radius, radius + 0.003, 128),
@@ -558,6 +563,12 @@ export default class Indochina extends Component {
 	async setSiteLon(e){
 		this.setState({
 			newSiteLon: e.target.value
+		})
+	}
+
+	async setMissileRange(e){
+		this.setState({
+			missileRange: e.target.value
 		})
 	}
 
@@ -759,6 +770,12 @@ export default class Indochina extends Component {
 							className={styles.siteLon} 
 							onChange={this.setSiteLon}
 							value={this.state.newSiteLon}
+						/>
+
+						<input 
+							className={styles.siteLon} 
+							onChange={this.setMissileRange}
+							value={this.state.missileRange}
 						/>
 
 						<div 
